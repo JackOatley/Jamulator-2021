@@ -5,7 +5,7 @@ game.app.setMode({
 	height: 480
 });
 
-class Circle {
+class Shape {
 
 	constructor() {
 		this.x = game.math.random(640);
@@ -15,7 +15,6 @@ class Circle {
 		this.r = game.math.random(255);
 		this.g = game.math.random(255);
 		this.b = game.math.random(255);
-		this.radius = game.math.random(20, 70);
 	}
 
 	update(dt) {
@@ -27,14 +26,42 @@ class Circle {
 
 	draw() {
 		game.graphics.setColor(this.r, this.g, this.b, 1);
+	}
+
+}
+
+class Circle extends Shape {
+
+	constructor() {
+		super();
+		this.radius = game.math.random(20, 70);
+	}
+
+	draw() {
+		super.draw();
 		game.graphics.circle(this.x, this.y, this.radius);
+	}
+
+}
+
+class Rectangle extends Shape {
+
+	constructor() {
+		super();
+		this.size = game.math.random(20, 70);
+	}
+
+	draw() {
+		super.draw();
+		game.graphics.rectangle(this.x, this.y, this.size, this.size);
 	}
 
 }
 
 const circles = [];
 for (let n = 0; n < 100; n++) {
-	circles.push(new Circle());
+	const c = ~~game.math.random(2) ? Circle : Rectangle;
+	circles.push(new c());
 }
 
 game.update((dt) => {

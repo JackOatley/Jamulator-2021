@@ -28,6 +28,13 @@ export function print(text, x, y) {
 	target.fillText(text, x, y);
 }
 
+//
+export function rectangle(x, y, w, h) {
+	target.beginPath();
+	target.rect(x, y, w, h);
+	target.fill();
+}
+
 // Set the drawing color.
 export function setColor(r, g, b, a) {
 	target.strokeStyle = target.fillStyle = `rgba(${r},${g},${b},${a})`;
@@ -56,6 +63,7 @@ export default {
 	circle: circle,
 	clear: clear,
 	print: print,
+	rectangle: rectangle,
 	setColor: setColor,
 	setFont: setFont,
 	setTextAlign: setTextAlign,
