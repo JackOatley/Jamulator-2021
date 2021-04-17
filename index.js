@@ -33,7 +33,6 @@ class Circle {
 }
 
 const circles = [];
-circles.visible = false;
 for (let n = 0; n < 100; n++) {
 	circles.push(new Circle());
 }

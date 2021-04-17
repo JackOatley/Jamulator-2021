@@ -21,7 +21,7 @@ function updateList(x) {
 
 // Executes the draw function of an object or for each object in an array.
 function drawList(x) {
-	if (x.paused === false) return;
+	if (x.visible === false) return;
 	if (Array.isArray(x))
 		x.forEach(drawList);
 	else
