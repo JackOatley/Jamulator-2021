@@ -6,7 +6,7 @@ game.app.setMode({
 	height: 480
 });
 
-const smiley = game.graphics.newImage("art/smiley.png", 0, 0);
+const smiley = game.graphics.newImage("art/smiley.png", 729/2, 729/2);
 
 class Shape {
 
@@ -65,12 +65,12 @@ class Smiley extends Shape {
 
 	constructor() {
 		super();
-		this.radius = game.math.random(20, 70);
+		this.scale = game.math.random(0.1, 0.2);
 	}
 
 	draw() {
 		super.draw();
-		game.graphics.draw(smiley, this.x, this.y, 0, this.radius/729*2, this.radius/729*2);
+		game.graphics.draw(smiley, this.x, this.y, 0, this.scale, this.scale);
 	}
 
 }
