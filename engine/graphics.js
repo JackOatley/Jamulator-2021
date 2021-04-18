@@ -23,6 +23,23 @@ export function clear(r=0, g=0, b=0, a=1) {
 	target.restore();
 }
 
+//
+export function draw(i, x, y, r=0, sx=1, sy=1) {
+	target.drawImage(i,
+		x - i.ox * sx, y - i.oy * sy,
+		i.width * sx, i.height * sy
+	);
+}
+
+//
+export function newImage(url, ox=0, oy=0) {
+	const img = new Image();
+	img.src = url;
+	img.ox = ox;
+	img.oy = oy;
+	return img;
+}
+
 // Print text at a given position.
 export function print(text, x, y) {
 	target.fillText(text, x, y);
@@ -62,6 +79,8 @@ export function setTextBaseline(x) {
 export default {
 	circle: circle,
 	clear: clear,
+	draw: draw,
+	newImage: newImage,
 	print: print,
 	rectangle: rectangle,
 	setColor: setColor,

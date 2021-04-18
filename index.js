@@ -6,6 +6,8 @@ game.app.setMode({
 	height: 480
 });
 
+const smiley = game.graphics.newImage("art/smiley.png", 0, 0);
+
 class Shape {
 
 	constructor() {
@@ -59,9 +61,23 @@ class Rectangle extends Shape {
 
 }
 
+class Smiley extends Shape {
+
+	constructor() {
+		super();
+		this.radius = game.math.random(20, 70);
+	}
+
+	draw() {
+		super.draw();
+		game.graphics.draw(smiley, this.x, this.y, 0, this.radius/729*2, this.radius/729*2);
+	}
+
+}
+
 const circles = [];
 for (let n = 0; n < 100; n++) {
-	const c = ~~game.math.random(2) ? Circle : Rectangle;
+	const c = game.math.choose(Circle, Rectangle, Smiley);
 	circles.push(new c());
 }
 
