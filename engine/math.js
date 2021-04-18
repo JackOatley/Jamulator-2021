@@ -1,5 +1,10 @@
 
 //
+export function choose(...args) {
+	return args[~~random(args.length)];
+}
+
+//
 export function random(x, y) {
 	switch (arguments.length) {
 		case (1): return Math.random() * x;
@@ -10,5 +15,6 @@ export function random(x, y) {
 
 //
 export default {
+	choose: choose,
 	random: random
 }
