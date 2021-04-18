@@ -1,6 +1,7 @@
 import game from "./engine/engine.js";
 
 game.app.setMode({
+	name: "Jamulator 2021",
 	width: 640,
 	height: 480
 });
