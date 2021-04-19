@@ -1,4 +1,5 @@
 import app from "./app.js";
+import audio from "./audio.js";
 import graphics from "./graphics.js";
 import math from "./math.js";
 
@@ -47,6 +48,7 @@ mainLoop();
 //
 export default {
 	app: app,
+	audio: audio,
 	draw: draw,
 	drawList: drawList,
 	graphics: graphics,
