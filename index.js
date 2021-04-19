@@ -10,9 +10,9 @@ const smiley = game.graphics.newImage("art/smiley.png", 729/2, 729/2);
 
 class Shape {
 
-	constructor() {
-		this.x = game.math.random(640);
-		this.y = game.math.random(480);
+	constructor(x, y) {
+		this.x = x || game.math.random(640);
+		this.y = y || game.math.random(480);
 		this.vx = game.math.random(-5, 5);
 		this.vy = game.math.random(-5, 5);
 		this.r = game.math.random(255);
@@ -35,8 +35,8 @@ class Shape {
 
 class Circle extends Shape {
 
-	constructor() {
-		super();
+	constructor(x, y) {
+		super(x, y);
 		this.radius = game.math.random(20, 70);
 	}
 
@@ -49,8 +49,8 @@ class Circle extends Shape {
 
 class Rectangle extends Shape {
 
-	constructor() {
-		super();
+	constructor(x, y) {
+		super(x, y);
 		this.size = game.math.random(20, 70);
 	}
 
@@ -63,8 +63,8 @@ class Rectangle extends Shape {
 
 class Smiley extends Shape {
 
-	constructor() {
-		super();
+	constructor(x, y) {
+		super(x, y);
 		this.scale = game.math.random(0.1, 0.2);
 	}
 
@@ -76,12 +76,13 @@ class Smiley extends Shape {
 }
 
 const circles = [];
-for (let n = 0; n < 100; n++) {
-	const c = game.math.choose(Circle, Rectangle, Smiley);
-	circles.push(new c());
-}
 
 game.update((dt) => {
+	if (game.mouse.pressed(0)) {
+		console.log(...game.mouse.position());
+		const c = game.math.choose(Circle, Rectangle, Smiley);
+		circles.push(new c(...game.mouse.position()));
+	}
 	game.updateList(circles);
 });
 

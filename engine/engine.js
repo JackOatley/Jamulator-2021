@@ -2,6 +2,7 @@ import app from "./app.js";
 import audio from "./audio.js";
 import graphics from "./graphics.js";
 import math from "./math.js";
+import mouse from "./mouse.js";
 
 let updateCallback;
 let drawCallback;
@@ -38,8 +39,8 @@ function draw(callback) {
 function mainLoop(time) {
 	updateCallback && updateCallback();
 	drawCallback && drawCallback();
+	mouse.update();
 	requestAnimationFrame(mainLoop);
-
 }
 
 // Start main loop.
@@ -53,6 +54,7 @@ export default {
 	drawList: drawList,
 	graphics: graphics,
 	math: math,
+	mouse: mouse,
 	update: update,
 	updateList: updateList
 }
