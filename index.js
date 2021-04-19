@@ -79,7 +79,6 @@ const circles = [];
 
 game.update((dt) => {
 	if (game.mouse.pressed(0)) {
-		console.log(...game.mouse.position());
 		const c = game.math.choose(Circle, Rectangle, Smiley);
 		circles.push(new c(...game.mouse.position()));
 	}

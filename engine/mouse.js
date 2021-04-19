@@ -27,27 +27,27 @@ document.body.addEventListener("mouseup", e => {
 	_released[e.button] = true;
 });
 
-//
+// Returns the current position of the mouse.
 export function position() {
 	return [x, y];
 }
 
-//
+// Returns true if the given button is currently held down.
 export function down(button) {
 	return _down[button] === true;
 }
 
-//
+// Returns true if the given button was pressed in the current tick.
 export function pressed(button) {
 	return _pressed[button] === true;
 }
 
-//
+// Returns true if the given button was released in the current tick.
 export function released(button) {
 	return _released[button] === true;
 }
 
-//
+// Update the mouse states, this is done automatically in engine.js.
 export function update() {
 	moveX = 0;
 	moveY = 0;
