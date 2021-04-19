@@ -1,13 +1,12 @@
 
-//
-export function newSound(src) {
+// Create a new sound from the given src (url to file). "n" let's us specify how many instances of this sound should be generated, if we need to play multiple of the same sound at once.
+export function newSound(src, n=1) {
 
 	const instances = [new Audio()];
-	const audio = new Audio();
 	instances[0].src = src;
 
 	// Create multiple instances so we can play the same sound multiple times.
-	for (let n = 0; n < 10; n++) {
+	for (; n > 1; n--) {
 		instances.push(instances[0].cloneNode());
 	}
 
@@ -17,7 +16,7 @@ export function newSound(src) {
 
 }
 
-//
+// Plays a given sound. The function loops through all instances of the sound to find one that isn't playing, and plays it.
 export function play(sound) {
 	for (let n = 0; n < 11; n++) {
 		if (sound.instances[n].paused) {
