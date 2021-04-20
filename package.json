@@ -1,0 +1,13 @@
+{
+    "name": "Jamulator-2021",
+    "version": "0.1.0",
+    "author": "Jack Oatley",
+    "description": "Our game for Jamulator 2021",
+    "main": "main.js",
+    "scripts": {
+        "start": "electron ."
+    },
+    "devDependencies": {
+        "electron": "^12.0.4"
+    }
+}
