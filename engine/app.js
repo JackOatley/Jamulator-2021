@@ -7,6 +7,12 @@ export const canvas = document.createElement("canvas");
 export const ctx = canvas.getContext("2d");
 document.body.appendChild(canvas);
 
+//
+canvas.addEventListener("contextmenu", e => {
+    e.preventDefault();
+    e.stopPropagation();
+});
+
 // Set various properties of the window.
 export function setMode(opts) {
 	document.title = opts.name || document.title;
