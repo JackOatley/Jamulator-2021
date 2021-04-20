@@ -89,6 +89,7 @@ game.draw(() => {
 	game.graphics.clear(0, 0, 0);
 	game.drawList(circles);
 	game.graphics.setColor(255, 255, 255, 1);
+	game.graphics.line(...circles.flatMap(i => [i.x, i.y]));
 	game.graphics.setTextAlign("center");
 	game.graphics.setTextBaseline("middle");
 	game.graphics.setFont("italic small-caps bold 64px cursive");

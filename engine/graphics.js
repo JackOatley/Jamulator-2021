@@ -31,6 +31,18 @@ export function draw(i, x, y, r=0, sx=1, sy=1) {
 	);
 }
 
+// Draw a line from a variable number of coordinates.
+// Each point (coord pair) is connected to the previous point.
+export function line(...c) {
+	const len = ~~(c.length / 2) * 2;
+	if (len < 4) return;
+	target.beginPath();
+	target.moveTo(c[0], c[1]);
+	for (let n = 2; n < len;)
+		target.lineTo(c[n++], c[n++]);
+	target.stroke();
+}
+
 //
 export function newImage(url, ox=0, oy=0) {
 	const img = new Image();
@@ -80,6 +92,7 @@ export default {
 	circle: circle,
 	clear: clear,
 	draw: draw,
+	line: line,
 	newImage: newImage,
 	print: print,
 	rectangle: rectangle,
