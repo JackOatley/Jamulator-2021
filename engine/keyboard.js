@@ -4,6 +4,7 @@ const _released = {};
 const _down = {};
 
 document.addEventListener("keydown", (e) => {
+	if (e.repeat) return;
 	_pressed[e.code] = true;
 	_released[e.code] = false;
 	_down[e.code] = true;
