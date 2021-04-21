@@ -52,6 +52,16 @@ export function newImage(url, ox=0, oy=0) {
 	return img;
 }
 
+//
+export function points(...c) {
+	const len = ~~(c.length / 2) * 2;
+	if (len < 2) return;
+	target.beginPath();
+	for (let n = 0; n < len;)
+		target.rect(c[n++], c[n++], 1, 1);
+	target.fill();
+}
+
 // Print text at a given position.
 export function print(text, x, y) {
 	target.fillText(text, x, y);
@@ -94,6 +104,7 @@ export default {
 	draw: draw,
 	line: line,
 	newImage: newImage,
+	points: points,
 	print: print,
 	rectangle: rectangle,
 	setColor: setColor,
