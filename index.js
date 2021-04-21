@@ -78,7 +78,7 @@ class Smiley extends Shape {
 const circles = [];
 
 game.update((dt) => {
-	if (game.mouse.pressed(0)) {
+	if (game.keyboard.pressed("Space")) {
 		const c = game.math.choose(Circle, Rectangle, Smiley);
 		circles.push(new c(...game.mouse.position()));
 	}

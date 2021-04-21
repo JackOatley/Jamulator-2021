@@ -1,6 +1,7 @@
 import app from "./app.js";
 import audio from "./audio.js";
 import graphics from "./graphics.js";
+import keyboard from "./keyboard.js";
 import math from "./math.js";
 import mouse from "./mouse.js";
 
@@ -39,6 +40,7 @@ function draw(callback) {
 function mainLoop(time) {
 	updateCallback && updateCallback();
 	drawCallback && drawCallback();
+	keyboard.update();
 	mouse.update();
 	requestAnimationFrame(mainLoop);
 }
@@ -53,6 +55,7 @@ export default {
 	draw: draw,
 	drawList: drawList,
 	graphics: graphics,
+	keyboard: keyboard,
 	math: math,
 	mouse: mouse,
 	update: update,
