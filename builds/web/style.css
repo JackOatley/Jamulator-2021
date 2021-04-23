@@ -2,3 +2,8 @@
 body {
 	margin: 0px;
 }
+
+canvas {
+	image-rendering: crisp-edges;
+	image-rendering: pixelated;
+}
