@@ -1,97 +1,48 @@
 import game from "./engine/engine.js";
+import { GameObject } from "./GameObject.js";
+import { playerDog } from "./playerDog.js";
 
 game.app.setMode({
 	name: "Jamulator 2021",
-	width: 640,
-	height: 480
+	width: 320 * 4,
+	height: 180 * 4,
+	resWidth: 320,
+	resHeight: 180
 });
 
-const smiley = game.graphics.newImage("art/smiley.png", 729/2, 729/2);
+const tiles = game.graphics.newImage("art/tiles.png");
+const grass = game.graphics.newSubImage(tiles, 0, 0, 16, 16);
+const grassEdge = game.graphics.newSubImage(tiles, 32, 0, 16, 16);
+const road = game.graphics.newSubImage(tiles, 0, 16, 16, 16);
+const roadDash = game.graphics.newSubImage(tiles, 16, 16, 16, 16, 8, 0);
 
-class Shape {
+const gameObjects = [];
 
-	constructor(x, y) {
-		this.x = x || game.math.random(640);
-		this.y = y || game.math.random(480);
-		this.vx = game.math.random(-5, 5);
-		this.vy = game.math.random(-5, 5);
-		this.r = game.math.random(255);
-		this.g = game.math.random(255);
-		this.b = game.math.random(255);
+// Generate map.
+const order = [grass, road, road, grass, road, road, grass, grass, road, road, grass];
+const length = order.length * 16;
+for (let y = 180 - 16, n = 0; y >= 0; y -= 16, n++) {
+	for (let x = 0; x < 640; x += 16) {
+
+		if (order[n] === grass && order[n-1] === road)
+			gameObjects.push(new GameObject(grassEdge, x, y));
+
+		else
+			gameObjects.push(new GameObject(order[n], x, y));
+
+		if (order[n] === road && order[n-1] === road && (x % 32 === 0))
+			gameObjects.push(new GameObject(roadDash, x, y + 8));
+
 	}
-
-	update(dt) {
-		this.x += this.vx;
-		this.y += this.vy;
-		if (this.x < 0 || this.x > 640) this.vx = -this.vx;
-		if (this.y < 0 || this.y > 480) this.vy = -this.vy;
-	}
-
-	draw() {
-		game.graphics.setColor(this.r, this.g, this.b, 1);
-	}
-
 }
 
-class Circle extends Shape {
-
-	constructor(x, y) {
-		super(x, y);
-		this.radius = game.math.random(20, 70);
-	}
-
-	draw() {
-		super.draw();
-		game.graphics.circle(this.x, this.y, this.radius);
-	}
-
-}
-
-class Rectangle extends Shape {
-
-	constructor(x, y) {
-		super(x, y);
-		this.size = game.math.random(20, 70);
-	}
-
-	draw() {
-		super.draw();
-		game.graphics.rectangle(this.x, this.y, this.size, this.size);
-	}
-
-}
-
-class Smiley extends Shape {
-
-	constructor(x, y) {
-		super(x, y);
-		this.scale = game.math.random(0.1, 0.2);
-	}
-
-	draw() {
-		super.draw();
-		game.graphics.draw(smiley, this.x, this.y, 0, this.scale, this.scale);
-	}
-
-}
-
-const circles = [];
+gameObjects.push(playerDog);
 
 game.update((dt) => {
-	if (game.keyboard.pressed("Space")) {
-		const c = game.math.choose(Circle, Rectangle, Smiley);
-		circles.push(new c(...game.mouse.position()));
-	}
-	game.updateList(circles);
+	game.updateList(gameObjects);
 });
 
 game.draw(() => {
 	game.graphics.clear(0, 0, 0);
-	game.drawList(circles);
-	game.graphics.setColor(255, 255, 255, 1);
-	game.graphics.line(...circles.flatMap(i => [i.x, i.y]));
-	game.graphics.setTextAlign("center");
-	game.graphics.setTextBaseline("middle");
-	game.graphics.setFont("italic small-caps bold 64px cursive");
-	game.graphics.print("Hello, world!", 320, 240);
+	game.drawList(gameObjects);
 });
