@@ -18,9 +18,10 @@ export function newSound(src, n=1) {
 
 // Plays a given sound. The function loops through all instances of the sound to find one that isn't playing, and plays it.
 export function play(sound) {
-	for (let n = 0; n < 11; n++) {
+	for (let n = 0; n < sound.instances.length; n++) {
 		if (sound.instances[n].paused) {
-			return sound.instances[n].play();
+			const i = sound.instances[n].play();
+			return i;
 		}
 	}
 	return null;
