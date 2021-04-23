@@ -1,6 +1,7 @@
 import game from "./engine/engine.js";
 import { GameObject } from "./GameObject.js";
 import { sndPlayerMove } from "./resources.js";
+import { playerPerson } from "./playerPerson.js";
 
 //
 export const playerDog = new GameObject(null, 64, 180-16);
@@ -19,8 +20,11 @@ playerDog.update = function() {
 		this.x += Math.sign(this.moveToX - this.x);
 		this.y += Math.sign(this.moveToY - this.y);
 		next = this.nextMove;
-		if (game.math.distance(this.x, this.y, this.moveToX, this.moveToY) === 15)
+		if (game.math.distance(this.x, this.y, this.moveToX, this.moveToY) === 15) {
 			game.audio.play(sndPlayerMove);
+			playerPerson.moveToX = this.x;
+			playerPerson.moveToY = this.y;
+		}
 	}
 
 	else {

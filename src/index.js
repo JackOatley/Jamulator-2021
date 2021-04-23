@@ -1,6 +1,7 @@
 import game from "./engine/engine.js";
 import { GameObject } from "./GameObject.js";
 import { playerDog } from "./playerDog.js";
+import { playerPerson } from "./playerPerson.js";
 import {
 	tiles, grass, grassEdge, road, roadDash, tree1, tree2
 } from "./resources.js";
@@ -40,7 +41,7 @@ for (let y = 180 - 16, n = 0; y >= 0; y -= 16, n++) {
 	}
 }
 
-gameObjects.push(playerDog);
+gameObjects.push(playerDog, playerPerson);
 
 function depthSort(a, b) {
 	return a.depth - b.depth;
