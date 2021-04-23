@@ -5,6 +5,12 @@ export function choose(...args) {
 }
 
 //
+export function distance(x1, y1, x2, y2) {
+	const x = x1 - x2, y = y1 - y2;
+	return Math.sqrt(x * x + y * y);
+}
+
+//
 export function random(x, y) {
 	switch (arguments.length) {
 		case (1): return Math.random() * x;
@@ -16,5 +22,6 @@ export function random(x, y) {
 //
 export default {
 	choose: choose,
+	distance: distance,
 	random: random
 }
