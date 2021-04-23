@@ -20,8 +20,7 @@ export function newSound(src, n=1) {
 export function play(sound) {
 	for (let n = 0; n < sound.instances.length; n++) {
 		if (sound.instances[n].paused) {
-			const i = sound.instances[n].play();
-			return i;
+			return sound.instances[n].play();
 		}
 	}
 	return null;
