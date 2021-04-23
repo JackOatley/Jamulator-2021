@@ -3,12 +3,13 @@ import game from "./engine/engine.js";
 //
 export class GameObject {
 
-	constructor(img, x=0, y=0) {
+	constructor(img, x=0, y=0, depth=0) {
 		this.img = img;
 		this.x = x;
 		this.y = y;
 		this.vx = 0;
 		this.vy = 0;
+		this.depth = depth;
 	}
 
 	update(dt) {

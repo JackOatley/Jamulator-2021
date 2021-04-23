@@ -5,6 +5,7 @@ import { sndPlayerMove } from "./resources.js";
 //
 export const playerDog = new GameObject(null, 64, 180-16);
 
+playerDog.depth = 10;
 playerDog.moveToX = playerDog.x;
 playerDog.moveToY = playerDog.y;
 playerDog.nextMove = {};

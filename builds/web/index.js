@@ -392,12 +392,13 @@ var game = {
 //
 class GameObject {
 
-	constructor(img, x=0, y=0) {
+	constructor(img, x=0, y=0, depth=0) {
 		this.img = img;
 		this.x = x;
 		this.y = y;
 		this.vx = 0;
 		this.vy = 0;
+		this.depth = depth;
 	}
 
 	update(dt) {
@@ -413,11 +414,22 @@ class GameObject {
 
 }
 
+// Sound assets.
 const sndPlayerMove = game.audio.newSound("audio/playerMove.wav", 2);
+
+// Art assets.
+const tiles = game.graphics.newImage("art/tiles.png");
+const grass = game.graphics.newSubImage(tiles, 0, 0, 16, 16);
+const grassEdge = game.graphics.newSubImage(tiles, 32, 0, 16, 16);
+const road = game.graphics.newSubImage(tiles, 0, 16, 16, 16);
+const roadDash = game.graphics.newSubImage(tiles, 16, 16, 16, 16, 8, 0);
+const tree1 = game.graphics.newSubImage(tiles, 0, 32, 16, 32, 0, 18);
+const tree2 = game.graphics.newSubImage(tiles, 16, 32, 16, 32, 0, 18);
 
 //
 const playerDog = new GameObject(null, 64, 180-16);
 
+playerDog.depth = 10;
 playerDog.moveToX = playerDog.x;
 playerDog.moveToY = playerDog.y;
 playerDog.nextMove = {};
@@ -483,12 +495,6 @@ game.app.setMode({
 	resHeight: 180
 });
 
-const tiles = game.graphics.newImage("art/tiles.png");
-const grass = game.graphics.newSubImage(tiles, 0, 0, 16, 16);
-const grassEdge = game.graphics.newSubImage(tiles, 32, 0, 16, 16);
-const road = game.graphics.newSubImage(tiles, 0, 16, 16, 16);
-const roadDash = game.graphics.newSubImage(tiles, 16, 16, 16, 16, 8, 0);
-
 const gameObjects = [];
 
 // Generate map.
@@ -502,6 +508,13 @@ for (let y = 180 - 16, n = 0; y >= 0; y -= 16, n++) {
 		else
 			gameObjects.push(new GameObject(order[n], x, y));
 
+		// Trees.
+		if (order[n] === grass && Math.random() > 0.8) {
+			const t = game.math.choose(tree1, tree2);
+			gameObjects.push(new GameObject(t, x, y, 20 + y / 1000));
+		}
+
+		// Road dashes.
 		if (order[n] === road && order[n-1] === road && (x % 32 === 0))
 			gameObjects.push(new GameObject(roadDash, x, y + 8));
 
@@ -510,11 +523,16 @@ for (let y = 180 - 16, n = 0; y >= 0; y -= 16, n++) {
 
 gameObjects.push(playerDog);
 
+function depthSort(a, b) {
+	return a.depth - b.depth;
+}
+
 game.update((dt) => {
 	game.updateList(gameObjects);
 });
 
 game.draw(() => {
 	game.graphics.clear(0, 0, 0);
+	gameObjects.sort(depthSort);
 	game.drawList(gameObjects);
 });
