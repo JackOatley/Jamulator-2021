@@ -15,9 +15,11 @@ canvas.addEventListener("contextmenu", e => {
 
 // Set various properties of the window.
 export function setMode(opts) {
-	document.title = opts.name || document.title;
-	canvas.width = opts.width || canvas.width;
-	canvas.height = opts.height || canvas.height;
+	document.title = opts.name ?? document.title;
+	canvas.width = opts.resWidth ?? canvas.width;
+	canvas.height = opts.resHeight ?? canvas.height;
+	canvas.style.width = opts.width ?? canvas.width;
+	canvas.style.height = opts.height ?? canvas.height;
 }
 
 //
