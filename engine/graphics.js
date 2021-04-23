@@ -25,10 +25,21 @@ export function clear(r=0, g=0, b=0, a=1) {
 
 //
 export function draw(i, x, y, r=0, sx=1, sy=1) {
-	target.drawImage(i,
+
+	// Draw image.
+	if (i instanceof Image)
+		return target.drawImage(i,
+			x - i.ox * sx, y - i.oy * sy,
+			i.width * sx, i.height * sy
+		);
+
+	// Draw subimage.
+	target.drawImage(i.img,
+		i.x, i.y, i.w, i.h,
 		x - i.ox * sx, y - i.oy * sy,
-		i.width * sx, i.height * sy
+		i.w * sx, i.h * sy
 	);
+
 }
 
 // Draw a line from a variable number of coordinates.
@@ -50,6 +61,16 @@ export function newImage(url, ox=0, oy=0) {
 	img.ox = ox;
 	img.oy = oy;
 	return img;
+}
+
+//
+export function newSubImage(img, x, y, w, h, ox=0, oy=0) {
+	return {
+		img: img,
+		x: x, y: y,
+		w: w, h: h,
+		ox: ox, oy: oy
+	}
 }
 
 //
@@ -75,7 +96,7 @@ export function rectangle(x, y, w, h) {
 }
 
 // Set the drawing color.
-export function setColor(r, g, b, a) {
+export function setColor(r, g, b, a=1) {
 	target.strokeStyle = target.fillStyle = `rgba(${r},${g},${b},${a})`;
 }
 
@@ -104,6 +125,7 @@ export default {
 	draw: draw,
 	line: line,
 	newImage: newImage,
+	newSubImage: newSubImage,
 	points: points,
 	print: print,
 	rectangle: rectangle,
