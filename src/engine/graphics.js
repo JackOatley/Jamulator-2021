@@ -119,6 +119,25 @@ export function setTextBaseline(x) {
 }
 
 //
+//
+//
+
+//
+export function push() {
+	target.save();
+}
+
+//
+export function pop() {
+	target.restore();
+}
+
+//
+export function translate(x, y) {
+	target.translate(x, y);
+}
+
+//
 export default {
 	circle: circle,
 	clear: clear,
@@ -132,5 +151,8 @@ export default {
 	setColor: setColor,
 	setFont: setFont,
 	setTextAlign: setTextAlign,
-	setTextBaseline: setTextBaseline
+	setTextBaseline: setTextBaseline,
+	push: push,
+	pop: pop,
+	translate: translate
 }
