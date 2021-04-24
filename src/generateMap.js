@@ -7,7 +7,7 @@ import { global } from "./globals.js";
 import {
 	tiles, grass, grassEdge, road, roadDash,
 	tree1, tree1Shadow, tree2, tree2Shadow,
-	bone, flag
+	bone, flag, sndCompleteLevel, sndObjectiveGet
 } from "./resources.js";
 
 //
@@ -22,6 +22,7 @@ export function generateMap(gameObjects, map) {
 		if (this.x === playerDog.x
 		&&  this.y === playerDog.y) {
 			console.log("collected objective");
+			game.audio.play(sndObjectiveGet);
 			hasObjective = true;
 			gameObjects.splice(gameObjects.indexOf(objective), 1);
 		}
@@ -33,6 +34,7 @@ export function generateMap(gameObjects, map) {
 		&&  this.y === playerDog.y
 		&&  hasObjective) {
 			console.log("level complete");
+			game.audio.play(sndCompleteLevel);
 			gameObjects.splice(gameObjects.indexOf(finish), 1);
 			gameObjects.length = 0;
 			global.level += 1;

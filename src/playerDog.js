@@ -1,7 +1,9 @@
 import game from "./engine/engine.js";
 import { GameObject } from "./GameObject.js";
-import { sndPlayerMove } from "./resources.js";
 import { playerPerson } from "./playerPerson.js";
+import {
+	sndPlayerMove
+} from "./resources.js";
 
 //
 export const playerDog = new GameObject(null, 64, 180-16);

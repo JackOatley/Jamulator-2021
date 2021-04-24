@@ -2,6 +2,8 @@ import game from "./engine/engine.js";
 
 // Sound assets.
 export const sndPlayerMove = game.audio.newSound("audio/playerMove.wav", 2);
+export const sndObjectiveGet = game.audio.newSound("audio/objectiveGet.wav", 2);
+export const sndCompleteLevel = game.audio.newSound("audio/completeLevel.wav", 2);
 
 // Art assets.
 export const tiles = game.graphics.newImage("art/tiles.png");
