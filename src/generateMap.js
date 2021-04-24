@@ -48,11 +48,13 @@ export function generateMap(gameObjects, map) {
 	for (let y = 0; y < map.data.length; y++)
 	for (let x = 0; x < 20; x++) {
 
+		const alt = (x + y) % 2;
+
 		if (mapGet(global.level, x, y) <= 0 && mapGet(global.level, x, y+1) === 1)
-			gameObjects.push(new GameObject(grassEdge, x*16, y*16));
+			gameObjects.push(new GameObject(grassEdge[alt], x*16, y*16));
 
 		else if (mapGet(global.level, x, y) <= 0)
-			gameObjects.push(new GameObject(grass, x*16, y*16));
+			gameObjects.push(new GameObject(grass[alt], x*16, y*16));
 
 		// Trees.
 		if (mapGet(global.level, x, y) === -1002) {
