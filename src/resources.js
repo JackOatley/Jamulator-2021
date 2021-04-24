@@ -11,3 +11,5 @@ export const road = game.graphics.newSubImage(tiles, 0, 16, 16, 16);
 export const roadDash = game.graphics.newSubImage(tiles, 16, 16, 16, 16, 8, 0);
 export const tree1 = game.graphics.newSubImage(tiles, 0, 32, 16, 32, 0, 18);
 export const tree2 = game.graphics.newSubImage(tiles, 16, 32, 16, 32, 0, 18);
+export const tree1Shadow = game.graphics.newSubImage(tiles, 0, 64, 20, 8, -8, -7);
+export const tree2Shadow = game.graphics.newSubImage(tiles, 0, 64, 16, 8, -8, -7);

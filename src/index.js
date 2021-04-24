@@ -4,7 +4,8 @@ import { playerDog } from "./playerDog.js";
 import { playerPerson } from "./playerPerson.js";
 import { maps, mapGet } from "./maps.js";
 import {
-	tiles, grass, grassEdge, road, roadDash, tree1, tree2
+	tiles, grass, grassEdge, road, roadDash,
+	tree1, tree1Shadow, tree2, tree2Shadow
 } from "./resources.js";
 
 game.app.setMode({
@@ -16,32 +17,6 @@ game.app.setMode({
 });
 
 const gameObjects = [];
-
-// Generate map.
-/*
-const order = [grass, road, road, grass, road, road, grass, grass, road, road, grass];
-const length = order.length * 16;
-for (let y = 180 - 16, n = 0; y >= 0; y -= 16, n++) {
-	for (let x = 0; x < 640; x += 16) {
-
-		if (order[n] === grass && order[n-1] === road)
-			gameObjects.push(new GameObject(grassEdge, x, y));
-
-		else
-			gameObjects.push(new GameObject(order[n], x, y));
-
-		// Trees.
-		if (order[n] === grass && Math.random() > 0.8) {
-			const t = game.math.choose(tree1, tree2);
-			gameObjects.push(new GameObject(t, x, y, 20 + y / 1000));
-		}
-
-		// Road dashes.
-		if (order[n] === road && order[n-1] === road && (x % 32 === 0))
-			gameObjects.push(new GameObject(roadDash, x, y + 8));
-
-	}
-}*/
 
 const map = maps[0];
 for (let y = 0; y < map.data.length; y++)
@@ -57,13 +32,15 @@ for (let x = 0; x < 20; x++) {
 	if (mapGet(0, x, y) === -1002) {
 		const t = game.math.choose(tree1, tree2);
 		gameObjects.push(new GameObject(t, x*16, y*16, 20 + y / 1000));
+		if (t === tree1) gameObjects.push(new GameObject(tree1Shadow, x*16, y*16, 1));
+		if (t === tree2) gameObjects.push(new GameObject(tree2Shadow, x*16, y*16, 1));
 	}
 
 	// Road dashes.
 	if (mapGet(0, x, y) === 1) {
 		gameObjects.push(new GameObject(road, x*16, y*16));
-		if (mapGet(0, x, y+1) === 0 && (x % 2 === 0))
-			gameObjects.push(new GameObject(roadDash, x*16, y*16-8));
+		if (mapGet(0, x, y+1) === 1 && (x % 2 === 0))
+			gameObjects.push(new GameObject(roadDash, x*16, y*16+8));
 	}
 
 	// Player dog.
@@ -82,9 +59,7 @@ for (let x = 0; x < 20; x++) {
 
 gameObjects.push(playerDog, playerPerson);
 
-function depthSort(a, b) {
-	return a.depth - b.depth;
-}
+const depthSort = (a, b) => a.depth - b.depth;
 
 game.update((dt) => {
 	game.updateList(gameObjects);
@@ -93,5 +68,8 @@ game.update((dt) => {
 game.draw(() => {
 	game.graphics.clear(0, 0, 0);
 	gameObjects.sort(depthSort);
+	game.graphics.push();
+	game.graphics.translate(0, game.math.clamp(-playerDog.y+90, -map.data.length*16+180, 0));
 	game.drawList(gameObjects);
+	game.graphics.pop();
 });
