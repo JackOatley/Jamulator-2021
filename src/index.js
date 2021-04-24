@@ -44,7 +44,7 @@ for (let y = 180 - 16, n = 0; y >= 0; y -= 16, n++) {
 }*/
 
 const map = maps[0];
-for (let y = 0; y < map.length; y++)
+for (let y = 0; y < map.data.length; y++)
 for (let x = 0; x < 20; x++) {
 
 	if (mapGet(0, x, y) <= 0 && mapGet(0, x, y+1) === 1)
