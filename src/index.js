@@ -13,8 +13,7 @@ import {
 
 game.app.setMode({
 	name: "Jamulator 2021",
-	width: 320 * 4,
-	height: 180 * 4,
+	fullscreen: true,
 	resWidth: 320,
 	resHeight: 180
 });
