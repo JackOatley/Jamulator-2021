@@ -5,7 +5,8 @@ import { playerPerson } from "./playerPerson.js";
 import { maps, mapGet } from "./maps.js";
 import {
 	tiles, grass, grassEdge, road, roadDash,
-	tree1, tree1Shadow, tree2, tree2Shadow
+	tree1, tree1Shadow, tree2, tree2Shadow,
+	bone, flag
 } from "./resources.js";
 
 game.app.setMode({
@@ -17,6 +18,30 @@ game.app.setMode({
 });
 
 const gameObjects = [];
+
+let hasObjective = false;
+
+let objective = new GameObject(bone, 0, 0, 1);
+objective.update = function() {
+	if (this.x === playerDog.x
+	&&  this.y === playerDog.y) {
+		console.log("collected objective");
+		hasObjective = true;
+		gameObjects.splice(gameObjects.indexOf(objective), 1);
+	}
+}
+
+let finish = new GameObject(flag, 0, 0, 1);
+finish.update = function() {
+	if (this.x === playerDog.x
+	&&  this.y === playerDog.y
+	&&  hasObjective) {
+		console.log("level complete");
+		gameObjects.splice(gameObjects.indexOf(finish), 1);
+	}
+}
+
+gameObjects.push(objective, finish);
 
 const map = maps[0];
 for (let y = 0; y < map.data.length; y++)
@@ -41,6 +66,16 @@ for (let x = 0; x < 20; x++) {
 		gameObjects.push(new GameObject(road, x*16, y*16));
 		if (mapGet(0, x, y+1) === 1 && (x % 2 === 0))
 			gameObjects.push(new GameObject(roadDash, x*16, y*16+8));
+	}
+
+	// Objective.
+	if (mapGet(0, x, y) === -1003) {
+		[objective.x, objective.y] = [x * 16, y * 16];
+	}
+
+	// Finish.
+	if (mapGet(0, x, y) === -1004) {
+		[finish.x, finish.y] = [x * 16, y * 16];
 	}
 
 	// Player dog.
