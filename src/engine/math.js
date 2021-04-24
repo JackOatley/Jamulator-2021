@@ -1,8 +1,9 @@
 
 //
-export function choose(...args) {
-	return args[~~random(args.length)];
-}
+export const choose = (...args) => args[~~random(args.length)];
+
+//
+export const clamp = (num, min, max) => Math.min(Math.max(num, min), max);
 
 //
 export function distance(x1, y1, x2, y2) {
@@ -22,6 +23,7 @@ export function random(x, y) {
 //
 export default {
 	choose: choose,
+	clamp: clamp,
 	distance: distance,
 	random: random
 }
