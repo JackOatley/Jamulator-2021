@@ -3,7 +3,8 @@ import { GameObject } from "./GameObject.js";
 import { playerDog } from "./playerDog.js";
 import { playerPerson } from "./playerPerson.js";
 import { maps, mapGet } from "./maps.js";
-import { global } from "./globals.js";
+import { global, gameObjects } from "./globals.js";
+import { CarSpawner } from "./car.js";
 import {
 	tiles, grass, grassEdge, road, roadDash,
 	tree1, tree1Shadow, tree2, tree2Shadow,
@@ -11,7 +12,7 @@ import {
 } from "./resources.js";
 
 //
-export function generateMap(gameObjects, map) {
+export function generateMap(map) {
 
 	console.log(global.level, map);
 
@@ -39,7 +40,7 @@ export function generateMap(gameObjects, map) {
 			gameObjects.length = 0;
 			global.level += 1;
 			if (global.level >= maps.length) global.level = 0;
-			generateMap(gameObjects, maps[global.level]);
+			generateMap(maps[global.level]);
 		}
 	}
 
@@ -49,6 +50,7 @@ export function generateMap(gameObjects, map) {
 	for (let x = 0; x < 20; x++) {
 
 		const alt = (x + y) % 2;
+		const alty = y % 2;
 
 		if (mapGet(global.level, x, y) <= 0 && mapGet(global.level, x, y+1) === 1)
 			gameObjects.push(new GameObject(grassEdge[alt], x*16, y*16));
@@ -64,11 +66,17 @@ export function generateMap(gameObjects, map) {
 			if (t === tree2) gameObjects.push(new GameObject(tree2Shadow, x*16, y*16, 1));
 		}
 
-		// Road dashes.
+		// Road.
 		if (mapGet(global.level, x, y) === 1) {
 			gameObjects.push(new GameObject(road, x*16, y*16));
+			// Road dashes.
 			if (mapGet(global.level, x, y+1) === 1 && (x % 2 === 0))
 				gameObjects.push(new GameObject(roadDash, x*16, y*16+8));
+			// Car spawners
+			if (x-1 < 0 && alty)
+				gameObjects.push(new CarSpawner(x*16-32, y*16, 1));
+			if (x+1 >= 20 && !alty)
+				gameObjects.push(new CarSpawner(x*16+16, y*16, -1));
 		}
 
 		// Objective.
@@ -84,12 +92,14 @@ export function generateMap(gameObjects, map) {
 		// Player dog.
 		if (mapGet(global.level, x, y) === -1000) {
 			[playerDog.x, playerDog.y] = [x * 16, y * 16];
+			[playerDog.startX, playerDog.startY] = [x * 16, y * 16];
 			[playerDog.moveToX, playerDog.moveToY] = [x * 16, y * 16];
 		}
 
 		// Player person.
 		if (mapGet(global.level, x, y) === -1001) {
 			[playerPerson.x, playerPerson.y] = [x * 16, y * 16];
+			[playerPerson.startX, playerPerson.startY] = [x * 16, y * 16];
 			[playerPerson.moveToX, playerPerson.moveToY] = [x * 16, y * 16];
 		}
 

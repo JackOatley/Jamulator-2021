@@ -8,13 +8,40 @@ import {
 //
 export const playerDog = new GameObject(null, 64, 180-16);
 
+playerDog.isHit = false;
+playerDog.startX = 0;
+playerDog.startY = 0;
+playerDog.w = 12;
+playerDog.h = 12;
 playerDog.depth = 10;
 playerDog.moveToX = playerDog.x;
 playerDog.moveToY = playerDog.y;
 playerDog.nextMove = {};
 
 //
+playerDog.hit = function() {
+	if (!playerDog.isHit) {
+		playerDog.isHit = playerDog.isHit = true;
+		playerDog.moveToX = playerDog.startX;
+		playerDog.moveToY = playerDog.startY;
+		playerPerson.moveToX = playerPerson.startX;
+		playerPerson.moveToY = playerPerson.startY;
+	}
+}
+
+//
 playerDog.update = function() {
+
+	if (playerDog.isHit) {
+		const xd = Math.min(2, game.math.distance(this.x, 0, this.startX, 0));
+		const yd = Math.min(2, game.math.distance(0, this.y, 0, this.startY));
+		this.x += Math.sign(this.moveToX - this.x) * xd;
+		this.y += Math.sign(this.moveToY - this.y) * yd;
+		if (this.x === this.startX && this.y === this.startY) {
+			this.isHit = false;
+		}
+		return;
+	}
 
 	let next = this;
 

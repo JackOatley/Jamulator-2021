@@ -4,7 +4,7 @@ import { playerDog } from "./playerDog.js";
 import { playerPerson } from "./playerPerson.js";
 import { maps } from "./maps.js";
 import { generateMap } from "./generateMap.js";
-import { global } from "./globals.js";
+import { global, gameObjects } from "./globals.js";
 import {
 	tiles, grass, grassEdge, road, roadDash,
 	tree1, tree1Shadow, tree2, tree2Shadow,
@@ -18,10 +18,8 @@ game.app.setMode({
 	resHeight: 180
 });
 
-const gameObjects = [];
-
 const map = maps[global.level];
-generateMap(gameObjects, map);
+generateMap(map);
 
 const depthSort = (a, b) => a.depth - b.depth;
 
