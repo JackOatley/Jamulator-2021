@@ -75,7 +75,7 @@ export function generateMap(map) {
 			if (x-1 < 0 && alty)
 				gameObjects.push(new CarSpawner(x*16-32, y*16, 1));
 			if (x+1 >= 20 && !alty)
-				gameObjects.push(new CarSpawner(x*16+16, y*16, -1));
+				gameObjects.push(new CarSpawner(x*16+48, y*16, -1));
 		}
 
 		// Objective.

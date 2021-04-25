@@ -23,6 +23,12 @@ export const treeShadow = [
 	game.graphics.newSubImage(tiles, 0, 64, 20, 8, -8, -7),
 	game.graphics.newSubImage(tiles, 0, 64, 15, 8, -8, -7),
 	game.graphics.newSubImage(tiles, 0, 64, 10, 8, -8, -7)];
+export const car = [
+	game.graphics.newSubImage(tiles, 0, 72, 32, 16, 0, 4),
+	game.graphics.newSubImage(tiles, 32, 72, 32, 16, 0, 4),
+	game.graphics.newSubImage(tiles, 64, 72, 32, 16, 0, 4),
+	game.graphics.newSubImage(tiles, 96, 72, 32, 16, 0, 4)];
+export const carShadow = game.graphics.newSubImage(tiles, 0, 88, 32, 16, 0, 4);
 
 export const bone = game.graphics.newSubImage(tiles, 112, 0, 16, 16);
 export const flag = game.graphics.newSubImage(tiles, 112, 16, 16, 16);

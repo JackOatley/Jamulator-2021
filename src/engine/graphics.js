@@ -26,6 +26,10 @@ export function clear(r=0, g=0, b=0, a=1) {
 //
 export function draw(i, x, y, r=0, sx=1, sy=1) {
 
+	push();
+	translate(x - i.ox, y - i.oy);
+	scale(sx, sy);
+
 	// Draw image.
 	if (i instanceof Image)
 		return target.drawImage(i,
@@ -36,9 +40,11 @@ export function draw(i, x, y, r=0, sx=1, sy=1) {
 	// Draw subimage.
 	target.drawImage(i.img,
 		i.x, i.y, i.w, i.h,
-		x - i.ox * sx, y - i.oy * sy,
-		i.w * sx, i.h * sy
+		0, 0,
+		i.w, i.h
 	);
+
+	pop();
 
 }
 
