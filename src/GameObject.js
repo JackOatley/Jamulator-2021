@@ -15,8 +15,6 @@ export class GameObject {
 	update(dt) {
 		this.x += this.vx;
 		this.y += this.vy;
-		if (this.x < 0 || this.x > 640) this.vx = -this.vx;
-		if (this.y < 0 || this.y > 480) this.vy = -this.vy;
 	}
 
 	draw() {
