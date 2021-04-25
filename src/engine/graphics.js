@@ -123,19 +123,16 @@ export function setTextBaseline(x) {
 //
 
 //
-export function push() {
-	target.save();
-}
+export const push = () => target.save();
 
 //
-export function pop() {
-	target.restore();
-}
+export const pop = () => target.restore();
 
 //
-export function translate(x, y) {
-	target.translate(x, y);
-}
+export const translate = (x, y) => target.translate(x, y);
+
+//
+export const scale = (x, y) => target.scale(x, y);
 
 //
 export default {
@@ -154,5 +151,6 @@ export default {
 	setTextBaseline: setTextBaseline,
 	push: push,
 	pop: pop,
-	translate: translate
+	translate: translate,
+	scale: scale
 }

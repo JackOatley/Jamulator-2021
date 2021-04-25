@@ -9,8 +9,8 @@ import { global, gameObjects } from "./globals.js";
 game.app.setMode({
 	name: "Jamulator 2021",
 	fullscreen: true,
-	resWidth: 320,
-	resHeight: 180
+	resWidth: 320 * 2,
+	resHeight: 180 * 2
 });
 
 const map = maps[global.level];
@@ -26,6 +26,7 @@ game.draw(() => {
 	game.graphics.clear(0, 0, 0);
 	gameObjects.sort(depthSort);
 	game.graphics.push();
+	game.graphics.scale(2, 2);
 	game.graphics.translate(0, game.math.clamp(-playerDog.y+90, -map.data.length*16+180, 0));
 	game.drawList(gameObjects);
 	game.graphics.pop();

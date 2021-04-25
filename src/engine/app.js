@@ -23,6 +23,7 @@ export function setMode(opts) {
 	canvas.height = opts.resHeight ?? canvas.height;
 	canvas.style.width = opts.width ?? canvas.width;
 	canvas.style.height = opts.height ?? canvas.height;
+	ctx.imageSmoothingEnabled = false;
 	fullscreen = opts.fullscreen ?? false;
 	if (fullscreen) handleResize();
 }
