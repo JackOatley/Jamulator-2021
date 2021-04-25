@@ -7,7 +7,7 @@ import { global, gameObjects } from "./globals.js";
 import { CarSpawner } from "./car.js";
 import {
 	tiles, grass, grassEdge, road, roadDash,
-	tree1, tree1Shadow, tree2, tree2Shadow,
+	tree, treeShadow,
 	bone, flag, sndCompleteLevel, sndObjectiveGet
 } from "./resources.js";
 
@@ -60,10 +60,9 @@ export function generateMap(map) {
 
 		// Trees.
 		if (mapGet(global.level, x, y) === -1002) {
-			const t = game.math.choose(tree1, tree2);
-			gameObjects.push(new GameObject(t, x*16, y*16, 20 + y / 1000));
-			if (t === tree1) gameObjects.push(new GameObject(tree1Shadow, x*16, y*16, 1));
-			if (t === tree2) gameObjects.push(new GameObject(tree2Shadow, x*16, y*16, 1));
+			const t = game.math.choose(0, 1, 2);
+			gameObjects.push(new GameObject(tree[t], x*16, y*16, 20 + y / 1000));
+			gameObjects.push(new GameObject(treeShadow[t], x*16, y*16, 1));
 		}
 
 		// Road.

@@ -5,11 +5,6 @@ import { playerPerson } from "./playerPerson.js";
 import { maps } from "./maps.js";
 import { generateMap } from "./generateMap.js";
 import { global, gameObjects } from "./globals.js";
-import {
-	tiles, grass, grassEdge, road, roadDash,
-	tree1, tree1Shadow, tree2, tree2Shadow,
-	bone, flag
-} from "./resources.js";
 
 game.app.setMode({
 	name: "Jamulator 2021",
