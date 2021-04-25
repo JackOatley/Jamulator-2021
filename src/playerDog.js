@@ -1,6 +1,8 @@
 import game from "./engine/engine.js";
+import { global } from "./globals.js";
 import { GameObject } from "./GameObject.js";
 import { playerPerson } from "./playerPerson.js";
+import { maps, mapGet } from "./maps.js";
 import {
 	sndPlayerMove
 } from "./resources.js";
@@ -68,22 +70,26 @@ playerDog.update = function() {
 	const nowX = this.moveToX;
 	const nowY = this.moveToY;
 
-	if (game.keyboard.pressed("ArrowUp")) {
+	if (game.keyboard.pressed("ArrowUp")
+	&& mapGet(global.level, this.moveToX / 16, this.moveToY / 16 - 1) !== -1002) {
 		next.moveToX = nowX;
 		next.moveToY = nowY - 16;
 	}
 
-	if (game.keyboard.pressed("ArrowDown")) {
+	if (game.keyboard.pressed("ArrowDown")
+	&& mapGet(global.level, this.moveToX / 16, this.moveToY / 16 + 1) !== -1002) {
 		next.moveToX = nowX;
 		next.moveToY = nowY + 16;
 	}
 
-	if (game.keyboard.pressed("ArrowLeft")) {
+	if (game.keyboard.pressed("ArrowLeft")
+	&& mapGet(global.level, this.moveToX / 16 - 1, this.moveToY / 16) !== -1002) {
 		next.moveToX = nowX - 16;
 		next.moveToY = nowY;
 	}
 
-	if (game.keyboard.pressed("ArrowRight")) {
+	if (game.keyboard.pressed("ArrowRight")
+	&& mapGet(global.level, this.moveToX / 16 + 1, this.moveToY / 16) !== -1002) {
 		next.moveToX = nowX + 16;
 		next.moveToY = nowY;
 	}

@@ -16,11 +16,6 @@ playerPerson.moveToY = playerPerson.y;
 playerPerson.nextMove = {};
 
 //
-playerPerson.hit = function() {
-	playerDog.hit();
-}
-
-//
 playerPerson.update = function() {
 
 	if (playerDog.isHit) {
