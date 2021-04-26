@@ -23,29 +23,14 @@ export function clear(r=0, g=0, b=0, a=1) {
 	target.restore();
 }
 
-//
-export function draw(i, x, y, r=0, sx=1, sy=1) {
-
+// Draw an image, or sub-image (Object) at given position, rotation and scaling.
+export function draw(i, x=0, y=0, r=0, sx=1, sy=1) {
 	push();
 	translate(x - i.ox, y - i.oy);
 	scale(sx, sy);
-
-	// Draw image.
-	if (i instanceof Image)
-		return target.drawImage(i,
-			x - i.ox * sx, y - i.oy * sy,
-			i.width * sx, i.height * sy
-		);
-
-	// Draw subimage.
-	target.drawImage(i.img,
-		i.x, i.y, i.w, i.h,
-		0, 0,
-		i.w, i.h
-	);
-
+	if (i instanceof Image) return target.drawImage(i, x, y, i.w, i.h);
+	target.drawImage(i.img, i.x, i.y, i.w, i.h, 0, 0, i.w, i.h);
 	pop();
-
 }
 
 // Draw a line from a variable number of coordinates.
@@ -55,8 +40,7 @@ export function line(...c) {
 	if (len < 4) return;
 	target.beginPath();
 	target.moveTo(c[0], c[1]);
-	for (let n = 2; n < len;)
-		target.lineTo(c[n++], c[n++]);
+	for (let n = 2; n < len;) target.lineTo(c[n++], c[n++]);
 	target.stroke();
 }
 
@@ -84,8 +68,7 @@ export function points(...c) {
 	const len = ~~(c.length / 2) * 2;
 	if (len < 2) return;
 	target.beginPath();
-	for (let n = 0; n < len;)
-		target.rect(c[n++], c[n++], 1, 1);
+	for (let n = 0; n < len;) target.rect(c[n++], c[n++], 1, 1);
 	target.fill();
 }
 
@@ -106,6 +89,10 @@ export function setColor(r, g, b, a=1) {
 	target.strokeStyle = target.fillStyle = `rgba(${r},${g},${b},${a})`;
 }
 
+//------------------------------------------------------------------------------
+// Text.
+//------------------------------------------------------------------------------
+
 // Set font from a CSS font shorthand string.
 // https://developer.mozilla.org/en-US/docs/Web/CSS/font
 export function setFont(font) {
@@ -124,9 +111,9 @@ export function setTextBaseline(x) {
 	target.textBaseline = x;
 }
 
-//
-//
-//
+//------------------------------------------------------------------------------
+// Transomation.
+//------------------------------------------------------------------------------
 
 //
 export const push = () => target.save();
