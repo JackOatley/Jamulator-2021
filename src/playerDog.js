@@ -4,11 +4,13 @@ import { GameObject } from "./GameObject.js";
 import { playerPerson } from "./playerPerson.js";
 import { maps, mapGet } from "./maps.js";
 import {
+	sprPlayerDog,
+	sprUnitShadow,
 	sndPlayerMove
 } from "./resources.js";
 
 //
-export const playerDog = new GameObject(null, 64, 180-16);
+export const playerDog = new GameObject(sprPlayerDog, 64, 180-16);
 
 playerDog.isHit = false;
 playerDog.startX = 0;
@@ -98,6 +100,6 @@ playerDog.update = function() {
 
 //
 playerDog.draw = function() {
-	game.graphics.setColor(255, 0, 0);
-	game.graphics.rectangle(this.x+2, this.y+2, 12, 12);
+	game.graphics.draw(sprUnitShadow, this.x + 2, this.y);
+	game.graphics.draw(sprPlayerDog, this.x, this.y);
 }

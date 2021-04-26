@@ -1,9 +1,10 @@
 import * as game from "./engine/engine.js";
 import { GameObject } from "./GameObject.js";
 import { playerDog } from "./playerDog.js";
+import { sprPlayerHuman, sprUnitShadow } from "./resources.js";
 
 //
-export const playerPerson = new GameObject(null, 64-16, 180-16);
+export const playerPerson = new GameObject(sprPlayerHuman, 64-16, 180-16);
 
 playerPerson.isHit = false;
 playerPerson.startX = 0;
@@ -41,6 +42,6 @@ playerPerson.update = function() {
 
 //
 playerPerson.draw = function() {
-	game.graphics.setColor(255, 100, 100);
-	game.graphics.rectangle(this.x+2, this.y+2, 12, 12);
+	game.graphics.draw(sprUnitShadow, this.x, this.y);
+	game.graphics.draw(sprPlayerHuman, this.x, this.y);
 }
