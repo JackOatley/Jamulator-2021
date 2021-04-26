@@ -21,14 +21,14 @@ export function draw(callback) {
 // Executes the update function of an object or for each object in an array.
 export function updateList(x) {
 	if (x.paused === false) return;
-	if (!Array.isArray(x)) return x.update && x.update();
+	if (!Array.isArray(x)) return x.update?.();
 	x.forEach(updateList);
 }
 
 // Executes the draw function of an object or for each object in an array.
 export function drawList(x) {
 	if (x.visible === false) return;
-	if (!Array.isArray(x)) return x.draw && x.draw();
+	if (!Array.isArray(x)) return x.draw?.();
 	x.forEach(drawList);
 }
 
