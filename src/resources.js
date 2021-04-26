@@ -1,4 +1,4 @@
-import game from "./engine/engine.js";
+import * as game from "./engine/engine.js";
 
 // Sound assets.
 export const sndMusic1 = game.audio.newSound("audio/music1.wav");

@@ -1,4 +1,4 @@
-import game from "./engine/engine.js";
+import * as game from "./engine/engine.js";
 import { global } from "./globals.js";
 import { GameObject } from "./GameObject.js";
 import { playerPerson } from "./playerPerson.js";

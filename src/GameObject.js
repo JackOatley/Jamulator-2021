@@ -1,4 +1,4 @@
-import game from "./engine/engine.js";
+import * as game from "./engine/engine.js";
 
 //
 export class GameObject {

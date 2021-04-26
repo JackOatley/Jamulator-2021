@@ -1,4 +1,4 @@
-import game from "./engine/engine.js";
+import * as game from "./engine/engine.js";
 import { GameObject } from "./GameObject.js";
 import { playerDog } from "./playerDog.js";
 import { playerPerson } from "./playerPerson.js";
@@ -15,9 +15,8 @@ game.app.setMode({
 });
 
 document.addEventListener("keydown", function(e) {
-	console.log("play");
     if (!game.audio.isPlaying(sndMusic1)) {
-		game.audio.loop(sndMusic1);
+		//game.audio.loop(sndMusic1);
 	}
 });
 
