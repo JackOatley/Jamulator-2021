@@ -54,12 +54,7 @@ export const maps = [
 ]
 
 //
-export function mapGet(map, x, y) {
-	y = Math.max(0, Math.min(y, maps[map].data.length-1));
-	return maps[map].data[y][x];
-}
+export const mapGet = (map, x, y) => maps[map].data[y]?.[x];
 
 //
-export function mapName(map) {
-	return maps[map].name;
-}
+export const mapName = (map) => maps[map].name;

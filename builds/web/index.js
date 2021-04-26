@@ -8,19 +8,39 @@ const ctx = canvas.getContext("2d");
 document.body.appendChild(canvas);
 
 //
+let fullscreen = false;
+
+//
 canvas.addEventListener("contextmenu", e => {
     e.preventDefault();
     e.stopPropagation();
 });
 
 // Set various properties of the window.
-function setMode(opts) {
+function setMode(opts = {}) {
 	document.title = opts.name ?? document.title;
 	canvas.width = opts.resWidth ?? canvas.width;
 	canvas.height = opts.resHeight ?? canvas.height;
 	canvas.style.width = opts.width ?? canvas.width;
 	canvas.style.height = opts.height ?? canvas.height;
+	ctx.imageSmoothingEnabled = false;
+	fullscreen = opts.fullscreen ?? false;
+	if (fullscreen) handleResize();
 }
+
+//
+function handleResize() {
+	if (!fullscreen) return;
+	const scale = Math.min(
+		window.innerWidth / canvas.width,
+		window.innerHeight / canvas.height
+	);
+	canvas.style.width = canvas.width * scale;
+	canvas.style.height = canvas.height * scale;
+}
+
+//
+window.addEventListener('resize', handleResize);
 
 //
 var app = {
@@ -50,17 +70,31 @@ function newSound(src, n=1) {
 function play(sound) {
 	for (let n = 0; n < sound.instances.length; n++) {
 		if (sound.instances[n].paused) {
-			const i = sound.instances[n].play();
-			return i;
+			return sound.instances[n].play();
 		}
 	}
 	return null;
 }
 
 //
+function loop(sound) {
+	if (sound.instances[0].paused) {
+		sound.instances[0].loop = true;
+		return sound.instances[0].play();
+	}
+}
+
+//
+function isPlaying(sound) {
+	return !sound.instances[0].paused;
+}
+
+//
 var audio = {
 	newSound: newSound,
-	play: play
+	play: play,
+	loop: loop,
+	isPlaying: isPlaying
 };
 
 /*
@@ -86,23 +120,14 @@ function clear(r=0, g=0, b=0, a=1) {
 	target.restore();
 }
 
-//
-function draw$1(i, x, y, r=0, sx=1, sy=1) {
-
-	// Draw image.
-	if (i instanceof Image)
-		return target.drawImage(i,
-			x - i.ox * sx, y - i.oy * sy,
-			i.width * sx, i.height * sy
-		);
-
-	// Draw subimage.
-	target.drawImage(i.img,
-		i.x, i.y, i.w, i.h,
-		x - i.ox * sx, y - i.oy * sy,
-		i.w * sx, i.h * sy
-	);
-
+// Draw an image, or sub-image (Object) at given position, rotation and scaling.
+function draw$1(i, x=0, y=0, r=0, sx=1, sy=1) {
+	push();
+	translate(x - i.ox, y - i.oy);
+	scale(sx, sy);
+	if (i instanceof Image) return target.drawImage(i, x, y, i.w, i.h);
+	target.drawImage(i.img, i.x, i.y, i.w, i.h, 0, 0, i.w, i.h);
+	pop();
 }
 
 // Draw a line from a variable number of coordinates.
@@ -112,8 +137,7 @@ function line(...c) {
 	if (len < 4) return;
 	target.beginPath();
 	target.moveTo(c[0], c[1]);
-	for (let n = 2; n < len;)
-		target.lineTo(c[n++], c[n++]);
+	for (let n = 2; n < len;) target.lineTo(c[n++], c[n++]);
 	target.stroke();
 }
 
@@ -141,8 +165,7 @@ function points(...c) {
 	const len = ~~(c.length / 2) * 2;
 	if (len < 2) return;
 	target.beginPath();
-	for (let n = 0; n < len;)
-		target.rect(c[n++], c[n++], 1, 1);
+	for (let n = 0; n < len;) target.rect(c[n++], c[n++], 1, 1);
 	target.fill();
 }
 
@@ -163,6 +186,10 @@ function setColor(r, g, b, a=1) {
 	target.strokeStyle = target.fillStyle = `rgba(${r},${g},${b},${a})`;
 }
 
+//------------------------------------------------------------------------------
+// Text.
+//------------------------------------------------------------------------------
+
 // Set font from a CSS font shorthand string.
 // https://developer.mozilla.org/en-US/docs/Web/CSS/font
 function setFont(font) {
@@ -181,6 +208,22 @@ function setTextBaseline(x) {
 	target.textBaseline = x;
 }
 
+//------------------------------------------------------------------------------
+// Transomation.
+//------------------------------------------------------------------------------
+
+//
+const push = () => target.save();
+
+//
+const pop = () => target.restore();
+
+//
+const translate = (x, y) => target.translate(x, y);
+
+//
+const scale = (x, y) => target.scale(x, y);
+
 //
 var graphics = {
 	circle: circle,
@@ -195,7 +238,11 @@ var graphics = {
 	setColor: setColor,
 	setFont: setFont,
 	setTextAlign: setTextAlign,
-	setTextBaseline: setTextBaseline
+	setTextBaseline: setTextBaseline,
+	push: push,
+	pop: pop,
+	translate: translate,
+	scale: scale
 };
 
 const _pressed$1 = {};
@@ -247,9 +294,10 @@ var keyboard = {
 };
 
 //
-function choose(...args) {
-	return args[~~random(args.length)];
-}
+const choose = (...args) => args[~~random(args.length)];
+
+//
+const clamp = (num, min, max) => Math.min(Math.max(num, min), max);
 
 //
 function distance(x1, y1, x2, y2) {
@@ -269,6 +317,7 @@ function random(x, y) {
 //
 var math = {
 	choose: choose,
+	clamp: clamp,
 	distance: distance,
 	random: random
 };
@@ -355,39 +404,25 @@ function draw(callback) {
 // Executes the update function of an object or for each object in an array.
 function updateList(x) {
 	if (x.paused === false) return;
-	if (!Array.isArray(x)) return x.update && x.update();
+	if (!Array.isArray(x)) return x.update?.();
 	x.forEach(updateList);
 }
 
 // Executes the draw function of an object or for each object in an array.
 function drawList(x) {
 	if (x.visible === false) return;
-	if (!Array.isArray(x)) return x.draw && x.draw();
+	if (!Array.isArray(x)) return x.draw?.();
 	x.forEach(drawList);
 }
 
 // Main loop.
 (function mainLoop(time) {
-	updateCallback && updateCallback();
-	drawCallback && drawCallback();
+	updateCallback?.();
+	drawCallback?.();
 	keyboard.update();
 	mouse.update();
 	requestAnimationFrame(mainLoop);
 })();
-
-//
-var game = {
-	app: app,
-	audio: audio,
-	draw: draw,
-	drawList: drawList,
-	graphics: graphics,
-	keyboard: keyboard,
-	math: math,
-	mouse: mouse,
-	update: update,
-	updateList: updateList
-};
 
 //
 class GameObject {
@@ -398,44 +433,204 @@ class GameObject {
 		this.y = y;
 		this.vx = 0;
 		this.vy = 0;
+		this.scaleX = 1;
+		this.scaleY = 1;
 		this.depth = depth;
 	}
 
 	update(dt) {
 		this.x += this.vx;
 		this.y += this.vy;
-		if (this.x < 0 || this.x > 640) this.vx = -this.vx;
-		if (this.y < 0 || this.y > 480) this.vy = -this.vy;
 	}
 
 	draw() {
-		this.img && game.graphics.draw(this.img, this.x, this.y);
+		this.img && graphics.draw(this.img, this.x, this.y, 0, this.scaleX, this.scaleY);
 	}
 
 }
 
+const gameObjects = [];
+
+const global = {
+	level: 0,
+	gameObjects: gameObjects
+};
+
 // Sound assets.
-const sndPlayerMove = game.audio.newSound("audio/playerMove.wav", 2);
+const sndMusic1 = audio.newSound("audio/music1.wav");
+const sndPlayerMove = audio.newSound("audio/playerMove.wav", 2);
+const sndObjectiveGet = audio.newSound("audio/objectiveGet.wav");
+const sndCompleteLevel = audio.newSound("audio/completeLevel.wav");
 
 // Art assets.
-const tiles = game.graphics.newImage("art/tiles.png");
-const grass = game.graphics.newSubImage(tiles, 0, 0, 16, 16);
-const grassEdge = game.graphics.newSubImage(tiles, 32, 0, 16, 16);
-const road = game.graphics.newSubImage(tiles, 0, 16, 16, 16);
-const roadDash = game.graphics.newSubImage(tiles, 16, 16, 16, 16, 8, 0);
-const tree1 = game.graphics.newSubImage(tiles, 0, 32, 16, 32, 0, 18);
-const tree2 = game.graphics.newSubImage(tiles, 16, 32, 16, 32, 0, 18);
+const tiles = graphics.newImage("art/tiles.png");
+const sprPlayerDog = graphics.newSubImage(tiles, 48, 32, 16, 16, 0, 4);
+const sprPlayerHuman = graphics.newSubImage(tiles, 32, 16, 16, 32, 0, 20);
+const sprUnitShadow = graphics.newSubImage(tiles, 48, 16, 16, 16, 0, 2);
+const grass = [
+	graphics.newSubImage(tiles, 0, 0, 16, 16),
+	graphics.newSubImage(tiles, 48, 0, 16, 16)];
+const grassEdge = [
+	graphics.newSubImage(tiles, 32, 0, 16, 16),
+	graphics.newSubImage(tiles, 80, 0, 16, 16)];
+const road = graphics.newSubImage(tiles, 0, 16, 16, 16);
+const roadDash = graphics.newSubImage(tiles, 16, 16, 16, 16, 8, 0);
+const tree = [
+	graphics.newSubImage(tiles, 0, 32, 16, 32, 0, 18),
+	graphics.newSubImage(tiles, 16, 32, 16, 32, 0, 18),
+	graphics.newSubImage(tiles, 32, 48, 16, 16, 0, 2)];
+const treeShadow = [
+	graphics.newSubImage(tiles, 0, 64, 20, 8, -8, -7),
+	graphics.newSubImage(tiles, 0, 64, 15, 8, -8, -7),
+	graphics.newSubImage(tiles, 0, 64, 10, 8, -8, -7)];
+const car = [
+	graphics.newSubImage(tiles, 0, 72, 32, 16, 0, 4),
+	graphics.newSubImage(tiles, 32, 72, 32, 16, 0, 4),
+	graphics.newSubImage(tiles, 64, 72, 32, 16, 0, 4),
+	graphics.newSubImage(tiles, 96, 72, 32, 16, 0, 4)];
+const carShadow = graphics.newSubImage(tiles, 0, 88, 32, 16, 0, 4);
+
+const bone = graphics.newSubImage(tiles, 112, 0, 16, 16);
+const flag = graphics.newSubImage(tiles, 112, 16, 16, 16);
 
 //
-const playerDog = new GameObject(null, 64, 180-16);
+const playerPerson = new GameObject(sprPlayerHuman, 64-16, 180-16);
 
+playerPerson.isHit = false;
+playerPerson.startX = 0;
+playerPerson.startY = 0;
+playerPerson.w = 12;
+playerPerson.h = 12;
+playerPerson.depth = 10;
+playerPerson.moveToX = playerPerson.x;
+playerPerson.moveToY = playerPerson.y;
+playerPerson.nextMove = {};
+
+//
+playerPerson.update = function() {
+
+	if (playerDog.isHit) {
+		const xd = Math.min(2, math.distance(this.x, 0, this.startX, 0));
+		const yd = Math.min(2, math.distance(0, this.y, 0, this.startY));
+		this.x += Math.sign(this.moveToX - this.x) * xd;
+		this.y += Math.sign(this.moveToY - this.y) * yd;
+		if (this.x === this.startX && this.y === this.startY) {
+			this.isHit = false;
+		}
+		return;
+	}
+
+	if (this.moveToX !== this.x || this.moveToY !== this.y) {
+		this.x += Math.sign(this.moveToX - this.x);
+		this.y += Math.sign(this.moveToY - this.y);
+		this.nextMove;
+	}
+
+};
+
+//
+playerPerson.draw = function() {
+	graphics.draw(sprUnitShadow, this.x, this.y);
+	graphics.draw(sprPlayerHuman, this.x, this.y);
+};
+
+// 0 = grass
+// 1 = trees
+const D = -1000;	// Dog
+const P = -1001;	// Person
+const T = -1002;	// Tree
+const X = -1003;	// Objective/target
+const F = -1004;	// Finish (once you get objective)
+
+const maps = [
+
+	{
+		name: "Test Level",
+		desc: "Cross the roads, don't get petted, don't let hooman down!",
+		data: [
+			[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+			[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,X,0,0,0],
+			[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+			[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+			[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+			[0,0,0,0,0,0,0,0,T,T,0,0,0,0,0,0,0,0,0,0],
+			[0,0,0,0,T,T,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+			[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+			[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+			[0,0,0,0,T,0,T,0,T,0,T,0,T,0,T,0,0,0,0,0],
+			[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+			[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+			[0,0,T,0,0,T,0,0,0,P,D,0,0,0,0,0,0,0,0,0],
+			[0,0,0,F,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+			[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+		]
+	}, {
+		name: "Test Level 2",
+		desc: "Blah-de-blah!",
+		data: [
+			[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+			[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,X,0,0,0],
+			[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+			[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+			[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+			[0,0,0,0,0,0,0,0,T,T,0,0,0,0,0,0,0,0,0,0],
+			[0,0,0,0,T,T,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+			[0,0,0,0,T,0,T,0,T,0,T,0,T,0,T,0,0,0,0,0],
+			[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+			[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+			[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+			[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+			[0,0,T,0,0,T,0,0,0,P,D,0,0,0,0,0,0,0,0,0],
+			[0,0,0,F,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+			[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+		]
+	}
+
+];
+
+//
+function mapGet(map, x, y) {
+	y = Math.max(0, Math.min(y, maps[map].data.length-1));
+	return maps[map].data[y][x];
+}
+
+//
+const playerDog = new GameObject(sprPlayerDog, 64, 180-16);
+
+playerDog.isHit = false;
+playerDog.startX = 0;
+playerDog.startY = 0;
+playerDog.w = 12;
+playerDog.h = 12;
 playerDog.depth = 10;
 playerDog.moveToX = playerDog.x;
 playerDog.moveToY = playerDog.y;
 playerDog.nextMove = {};
 
 //
+playerDog.hit = function() {
+	if (!playerDog.isHit) {
+		playerDog.isHit = playerDog.isHit = true;
+		playerDog.moveToX = playerDog.startX;
+		playerDog.moveToY = playerDog.startY;
+		playerPerson.moveToX = playerPerson.startX;
+		playerPerson.moveToY = playerPerson.startY;
+	}
+};
+
+//
 playerDog.update = function() {
+
+	if (playerDog.isHit) {
+		const xd = Math.min(2, math.distance(this.x, 0, this.startX, 0));
+		const yd = Math.min(2, math.distance(0, this.y, 0, this.startY));
+		this.x += Math.sign(this.moveToX - this.x) * xd;
+		this.y += Math.sign(this.moveToY - this.y) * yd;
+		if (this.x === this.startX && this.y === this.startY) {
+			this.isHit = false;
+		}
+		return;
+	}
 
 	let next = this;
 
@@ -443,8 +638,11 @@ playerDog.update = function() {
 		this.x += Math.sign(this.moveToX - this.x);
 		this.y += Math.sign(this.moveToY - this.y);
 		next = this.nextMove;
-		if (game.math.distance(this.x, this.y, this.moveToX, this.moveToY) === 15)
-			game.audio.play(sndPlayerMove);
+		if (math.distance(this.x, this.y, this.moveToX, this.moveToY) === 15) {
+			audio.play(sndPlayerMove);
+			playerPerson.moveToX = this.x;
+			playerPerson.moveToY = this.y;
+		}
 	}
 
 	else {
@@ -459,22 +657,26 @@ playerDog.update = function() {
 	const nowX = this.moveToX;
 	const nowY = this.moveToY;
 
-	if (game.keyboard.pressed("ArrowUp")) {
+	if (keyboard.pressed("ArrowUp")
+	&& mapGet(global.level, this.moveToX / 16, this.moveToY / 16 - 1) !== -1002) {
 		next.moveToX = nowX;
 		next.moveToY = nowY - 16;
 	}
 
-	if (game.keyboard.pressed("ArrowDown")) {
+	if (keyboard.pressed("ArrowDown")
+	&& mapGet(global.level, this.moveToX / 16, this.moveToY / 16 + 1) !== -1002) {
 		next.moveToX = nowX;
 		next.moveToY = nowY + 16;
 	}
 
-	if (game.keyboard.pressed("ArrowLeft")) {
+	if (keyboard.pressed("ArrowLeft")
+	&& mapGet(global.level, this.moveToX / 16 - 1, this.moveToY / 16) !== -1002) {
 		next.moveToX = nowX - 16;
 		next.moveToY = nowY;
 	}
 
-	if (game.keyboard.pressed("ArrowRight")) {
+	if (keyboard.pressed("ArrowRight")
+	&& mapGet(global.level, this.moveToX / 16 + 1, this.moveToY / 16) !== -1002) {
 		next.moveToX = nowX + 16;
 		next.moveToY = nowY;
 	}
@@ -483,56 +685,197 @@ playerDog.update = function() {
 
 //
 playerDog.draw = function() {
-	game.graphics.setColor(255, 0, 0);
-	game.graphics.rectangle(this.x+2, this.y+2, 12, 12);
+	graphics.draw(sprUnitShadow, this.x + 2, this.y);
+	graphics.draw(sprPlayerDog, this.x, this.y);
 };
 
-game.app.setMode({
-	name: "Jamulator 2021",
-	width: 320 * 4,
-	height: 180 * 4,
-	resWidth: 320,
-	resHeight: 180
-});
+//
+class CarSpawner extends GameObject {
 
-const gameObjects = [];
+	//
+	constructor(x, y, d) {
+		super(null, x, y);
+		this.d = d;
+		this.timer = 120 + 60 * ~~math.random(5);
+		gameObjects.push(this);
+	}
 
-// Generate map.
-const order = [grass, road, road, grass, road, road, grass, grass, road, road, grass];
-for (let y = 180 - 16, n = 0; y >= 0; y -= 16, n++) {
-	for (let x = 0; x < 640; x += 16) {
+	//
+	update(dt) {
+		if (this.timer-- <= 0) {
+			this.timer = 140 + 80 * ~~math.random(6);
+			new Car(this.x, this.y, this.d);
+		}
+	}
 
-		if (order[n] === grass && order[n-1] === road)
-			gameObjects.push(new GameObject(grassEdge, x, y));
+}
 
-		else
-			gameObjects.push(new GameObject(order[n], x, y));
+//
+class Car extends GameObject {
+
+	//
+	constructor(x, y, d) {
+		super(car[~~math.random(car.length)], x, y, 1);
+		this.scaleX = d;
+		this.w = 28;
+		this.h = 12;
+		this.vx = d;
+		gameObjects.push(this);
+	}
+
+	//
+	collides(obj) {
+		const x1 = Math.min(this.x, this.x + this.w * this.scaleX);
+		const x2 = Math.max(this.x, this.x + this.w * this.scaleX);
+		const y1 = Math.min(this.y, this.y + this.h * this.scaleY);
+		const y2 = Math.max(this.y, this.y + this.h * this.scaleY);
+		if ((x1 > obj.x + obj.w)
+		||  (y1 > obj.y + obj.h)
+		||  (x2 < obj.x)
+		||  (y2 < obj.y))
+			return false;
+		return true;
+	}
+
+	//
+	update(dt) {
+		super.update(dt);
+		if (this.collides(playerDog) || this.collides(playerPerson)) {
+			playerDog.hit();
+		}
+	}
+
+	//
+	draw() {
+		graphics.draw(carShadow, this.x + 2, this.y, 0, this.scaleX, 1);
+		super.draw();
+	}
+
+}
+
+//
+function generateMap(map) {
+
+	console.log(global.level, map);
+
+	let hasObjective = false;
+
+	let objective = new GameObject(bone, 0, 0, 1);
+	objective.update = function() {
+		if (this.x === playerDog.x
+		&&  this.y === playerDog.y) {
+			console.log("collected objective");
+			audio.play(sndObjectiveGet);
+			hasObjective = true;
+			gameObjects.splice(gameObjects.indexOf(objective), 1);
+		}
+	};
+
+	let finish = new GameObject(flag, 0, 0, 1);
+	finish.update = function() {
+		if (this.x === playerDog.x
+		&&  this.y === playerDog.y
+		&&  hasObjective) {
+			console.log("level complete");
+			audio.play(sndCompleteLevel);
+			gameObjects.splice(gameObjects.indexOf(finish), 1);
+			gameObjects.length = 0;
+			global.level += 1;
+			if (global.level >= maps.length) global.level = 0;
+			generateMap(maps[global.level]);
+		}
+	};
+
+	gameObjects.push(objective, finish);
+
+	for (let y = 0; y < map.data.length; y++)
+	for (let x = 0; x < 20; x++) {
+
+		const alt = (x + y) % 2;
+		const alty = y % 2;
+
+		if (mapGet(global.level, x, y) <= 0 && mapGet(global.level, x, y+1) === 1)
+			gameObjects.push(new GameObject(grassEdge[alt], x*16, y*16));
+
+		else if (mapGet(global.level, x, y) <= 0)
+			gameObjects.push(new GameObject(grass[alt], x*16, y*16));
 
 		// Trees.
-		if (order[n] === grass && Math.random() > 0.8) {
-			const t = game.math.choose(tree1, tree2);
-			gameObjects.push(new GameObject(t, x, y, 20 + y / 1000));
+		if (mapGet(global.level, x, y) === -1002) {
+			const t = math.choose(0, 1, 2);
+			gameObjects.push(new GameObject(tree[t], x*16, y*16, 20 + y / 1000));
+			gameObjects.push(new GameObject(treeShadow[t], x*16, y*16, 1));
 		}
 
-		// Road dashes.
-		if (order[n] === road && order[n-1] === road && (x % 32 === 0))
-			gameObjects.push(new GameObject(roadDash, x, y + 8));
+		// Road.
+		if (mapGet(global.level, x, y) === 1) {
+			gameObjects.push(new GameObject(road, x*16, y*16));
+			// Road dashes.
+			if (mapGet(global.level, x, y+1) === 1 && (x % 2 === 0))
+				gameObjects.push(new GameObject(roadDash, x*16, y*16+8));
+			// Car spawners
+			if (x-1 < 0 && alty)
+				gameObjects.push(new CarSpawner(x*16-32, y*16, 1));
+			if (x+1 >= 20 && !alty)
+				gameObjects.push(new CarSpawner(x*16+48, y*16, -1));
+		}
+
+		// Objective.
+		if (mapGet(global.level, x, y) === -1003) {
+			[objective.x, objective.y] = [x * 16, y * 16];
+		}
+
+		// Finish.
+		if (mapGet(global.level, x, y) === -1004) {
+			[finish.x, finish.y] = [x * 16, y * 16];
+		}
+
+		// Player dog.
+		if (mapGet(global.level, x, y) === -1000) {
+			[playerDog.x, playerDog.y] = [x * 16, y * 16];
+			[playerDog.startX, playerDog.startY] = [x * 16, y * 16];
+			[playerDog.moveToX, playerDog.moveToY] = [x * 16, y * 16];
+		}
+
+		// Player person.
+		if (mapGet(global.level, x, y) === -1001) {
+			[playerPerson.x, playerPerson.y] = [x * 16, y * 16];
+			[playerPerson.startX, playerPerson.startY] = [x * 16, y * 16];
+			[playerPerson.moveToX, playerPerson.moveToY] = [x * 16, y * 16];
+		}
 
 	}
+
+	gameObjects.push(playerDog, playerPerson);
+
 }
 
-gameObjects.push(playerDog);
-
-function depthSort(a, b) {
-	return a.depth - b.depth;
-}
-
-game.update((dt) => {
-	game.updateList(gameObjects);
+app.setMode({
+	name: "Jamulator 2021",
+	fullscreen: true,
+	resWidth: 320 * 2,
+	resHeight: 180 * 2
 });
 
-game.draw(() => {
-	game.graphics.clear(0, 0, 0);
+document.addEventListener("keydown", function(e) {
+    if (!audio.isPlaying(sndMusic1)) ;
+});
+
+const map = maps[global.level];
+generateMap(map);
+
+const depthSort = (a, b) => a.depth - b.depth;
+
+update((dt) => {
+	updateList(gameObjects);
+});
+
+draw(() => {
+	graphics.clear(0, 0, 0);
 	gameObjects.sort(depthSort);
-	game.drawList(gameObjects);
+	graphics.push();
+	graphics.scale(2, 2);
+	graphics.translate(0, math.clamp(-playerDog.y+90, -map.data.length*16+180, 0));
+	drawList(gameObjects);
+	graphics.pop();
 });

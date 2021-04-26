@@ -1,4 +1,5 @@
 import * as game from "./engine/engine.js";
+import { keyboard, math } from "./engine/engine.js";
 import { global } from "./globals.js";
 import { GameObject } from "./GameObject.js";
 import { playerPerson } from "./playerPerson.js";
@@ -37,13 +38,11 @@ playerDog.hit = function() {
 playerDog.update = function() {
 
 	if (playerDog.isHit) {
-		const xd = Math.min(2, game.math.distance(this.x, 0, this.startX, 0));
-		const yd = Math.min(2, game.math.distance(0, this.y, 0, this.startY));
+		const xd = Math.min(2, math.distance(this.x, 0, this.startX, 0));
+		const yd = Math.min(2, math.distance(0, this.y, 0, this.startY));
 		this.x += Math.sign(this.moveToX - this.x) * xd;
 		this.y += Math.sign(this.moveToY - this.y) * yd;
-		if (this.x === this.startX && this.y === this.startY) {
-			this.isHit = false;
-		}
+		this.isHit = (this.x !== this.startX && this.y !== this.startY);
 		return;
 	}
 
@@ -53,7 +52,7 @@ playerDog.update = function() {
 		this.x += Math.sign(this.moveToX - this.x);
 		this.y += Math.sign(this.moveToY - this.y);
 		next = this.nextMove;
-		if (game.math.distance(this.x, this.y, this.moveToX, this.moveToY) === 15) {
+		if (math.distance(this.x, this.y, this.moveToX, this.moveToY) === 15) {
 			game.audio.play(sndPlayerMove);
 			playerPerson.moveToX = this.x;
 			playerPerson.moveToY = this.y;
@@ -69,31 +68,15 @@ playerDog.update = function() {
 		}
 	}
 
-	const nowX = this.moveToX;
-	const nowY = this.moveToY;
-
-	if (game.keyboard.pressed("ArrowUp")
-	&& mapGet(global.level, this.moveToX / 16, this.moveToY / 16 - 1) !== -1002) {
-		next.moveToX = nowX;
-		next.moveToY = nowY - 16;
-	}
-
-	if (game.keyboard.pressed("ArrowDown")
-	&& mapGet(global.level, this.moveToX / 16, this.moveToY / 16 + 1) !== -1002) {
-		next.moveToX = nowX;
-		next.moveToY = nowY + 16;
-	}
-
-	if (game.keyboard.pressed("ArrowLeft")
-	&& mapGet(global.level, this.moveToX / 16 - 1, this.moveToY / 16) !== -1002) {
-		next.moveToX = nowX - 16;
-		next.moveToY = nowY;
-	}
-
-	if (game.keyboard.pressed("ArrowRight")
-	&& mapGet(global.level, this.moveToX / 16 + 1, this.moveToY / 16) !== -1002) {
-		next.moveToX = nowX + 16;
-		next.moveToY = nowY;
+	//
+	const dx = -keyboard.pressed("ArrowLeft") + keyboard.pressed("ArrowRight");
+	const dy = -keyboard.pressed("ArrowUp") + keyboard.pressed("ArrowDown");
+	const nx = this.moveToX / 16 + dx;
+	const ny = this.moveToY / 16 + dy;
+	const nextTile = mapGet(global.level, nx, ny);
+	if ((dx !== 0 || dy !== 0) && nextTile !== -1002 && nextTile !== undefined) {
+		next.moveToX = nx * 16;
+		next.moveToY = ny * 16;
 	}
 
 }
