@@ -17,7 +17,7 @@ canvas.addEventListener("contextmenu", e => {
 });
 
 // Set various properties of the window.
-export function setMode(opts) {
+export function setMode(opts = {}) {
 	document.title = opts.name ?? document.title;
 	canvas.width = opts.resWidth ?? canvas.width;
 	canvas.height = opts.resHeight ?? canvas.height;
