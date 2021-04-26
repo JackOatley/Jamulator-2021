@@ -27,7 +27,22 @@ export function play(sound) {
 }
 
 //
+export function loop(sound) {
+	if (sound.instances[0].paused) {
+		sound.instances[0].loop = true;
+		return sound.instances[0].play();
+	}
+}
+
+//
+export function isPlaying(sound) {
+	return !sound.instances[0].paused;
+}
+
+//
 export default {
 	newSound: newSound,
-	play: play
+	play: play,
+	loop: loop,
+	isPlaying: isPlaying
 }

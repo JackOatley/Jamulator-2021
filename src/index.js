@@ -5,12 +5,20 @@ import { playerPerson } from "./playerPerson.js";
 import { maps } from "./maps.js";
 import { generateMap } from "./generateMap.js";
 import { global, gameObjects } from "./globals.js";
+import { sndMusic1 } from "./resources.js";
 
 game.app.setMode({
 	name: "Jamulator 2021",
 	fullscreen: true,
 	resWidth: 320 * 2,
 	resHeight: 180 * 2
+});
+
+document.addEventListener("keydown", function(e) {
+	console.log("play");
+    if (!game.audio.isPlaying(sndMusic1)) {
+		game.audio.loop(sndMusic1);
+	}
 });
 
 const map = maps[global.level];
