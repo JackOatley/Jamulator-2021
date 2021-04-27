@@ -39,8 +39,10 @@ game.draw(() => {
 	gameObjects.sort(depthSort);
 	graphics.push();
 	graphics.scale(2, 2);
-	if (gameObjects.indexOf(playerDog) !== -1)
+	if (gameObjects.indexOf(playerDog) !== -1) {
+		const map = maps[global.level];
 		graphics.translate(0, math.clamp(-playerDog.y+90, -map.data.length*16+180, 0));
+	}
 	game.drawList(gameObjects);
 	graphics.pop();
 });
