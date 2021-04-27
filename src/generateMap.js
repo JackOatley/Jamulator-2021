@@ -7,7 +7,7 @@ import { global, gameObjects } from "./globals.js";
 import { CarSpawner } from "./car.js";
 import {
 	tiles, grass, grassEdge, road, roadDash,
-	tree, treeShadow,
+	tree, treeShadow, rock,
 	bone, flag, sndCompleteLevel, sndObjectiveGet
 } from "./resources.js";
 
@@ -46,30 +46,35 @@ export function generateMap(map) {
 
 	gameObjects.push(objective, finish);
 
+	const level = global.level;
 	for (let y = 0; y < map.data.length; y++)
 	for (let x = 0; x < 20; x++) {
 
 		const alt = (x + y) % 2;
 		const alty = y % 2;
 
-		if (mapGet(global.level, x, y) <= 0 && mapGet(global.level, x, y+1) === 1)
+		let frill = true;
+
+		if (mapGet(level, x, y) <= 0 && mapGet(level, x, y+1) === 1)
 			gameObjects.push(new GameObject(grassEdge[alt], x*16, y*16));
 
-		else if (mapGet(global.level, x, y) <= 0)
+		else if (mapGet(level, x, y) <= 0)
 			gameObjects.push(new GameObject(grass[alt], x*16, y*16));
 
 		// Trees.
-		if (mapGet(global.level, x, y) === -1002) {
+		if (mapGet(level, x, y) === -1002) {
 			const t = game.math.choose(0, 1, 2);
-			gameObjects.push(new GameObject(tree[t], x*16, y*16, 20 + y / 1000));
+			gameObjects.push(new GameObject(tree[t], x*16, y*16, 20 + y / 1e3));
 			gameObjects.push(new GameObject(treeShadow[t], x*16, y*16, 1));
+			frill = false;
 		}
 
 		// Road.
-		if (mapGet(global.level, x, y) === 1) {
+		if (mapGet(level, x, y) === 1) {
 			gameObjects.push(new GameObject(road, x*16, y*16));
+			frill = false;
 			// Road dashes.
-			if (mapGet(global.level, x, y+1) === 1 && (x % 2 === 0))
+			if (mapGet(level, x, y+1) === 1 && (x % 2 === 0))
 				gameObjects.push(new GameObject(roadDash, x*16, y*16+8));
 			// Car spawners
 			if (x-1 < 0 && alty)
@@ -79,27 +84,34 @@ export function generateMap(map) {
 		}
 
 		// Objective.
-		if (mapGet(global.level, x, y) === -1003) {
+		if (mapGet(level, x, y) === -1003) {
 			[objective.x, objective.y] = [x * 16, y * 16];
+			frill = false;
 		}
 
 		// Finish.
-		if (mapGet(global.level, x, y) === -1004) {
+		if (mapGet(level, x, y) === -1004) {
 			[finish.x, finish.y] = [x * 16, y * 16];
+			frill = false;
 		}
 
 		// Player dog.
-		if (mapGet(global.level, x, y) === -1000) {
+		if (mapGet(level, x, y) === -1000) {
 			[playerDog.x, playerDog.y] = [x * 16, y * 16];
 			[playerDog.startX, playerDog.startY] = [x * 16, y * 16];
 			[playerDog.moveToX, playerDog.moveToY] = [x * 16, y * 16];
 		}
 
 		// Player person.
-		if (mapGet(global.level, x, y) === -1001) {
+		if (mapGet(level, x, y) === -1001) {
 			[playerPerson.x, playerPerson.y] = [x * 16, y * 16];
 			[playerPerson.startX, playerPerson.startY] = [x * 16, y * 16];
 			[playerPerson.moveToX, playerPerson.moveToY] = [x * 16, y * 16];
+		}
+
+		//
+		if (frill && Math.random() < 0.1) {
+			gameObjects.push(new GameObject(rock[0], x*16, y*16));
 		}
 
 	}

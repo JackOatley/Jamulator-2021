@@ -2,8 +2,21 @@ import { graphics, audio } from "./engine/engine.js";
 
 // Sound assets.
 export const sndMusic1 = audio.newSound("audio/music1.wav");
-export const sndPlayerMove = audio.newSound("audio/playerMove.wav", 2);
-export const sndObjectiveGet = audio.newSound("audio/objectiveGet.wav");
+export const sndAmbienceCars = audio.newSound("audio/sfx_ambience_cars.wav");
+export const sndPlayerWalkGrass = [
+	audio.newSound("audio/sfx_footstep_grass_1.wav", 2),
+	audio.newSound("audio/sfx_footstep_grass_2.wav", 2),
+	audio.newSound("audio/sfx_footstep_grass_3.wav", 2)];
+export const sndPlayerWalkAlsphalt = [
+	audio.newSound("audio/sfx_footstep_alsphalt_1.wav", 2),
+	audio.newSound("audio/sfx_footstep_alsphalt_2.wav", 2),
+	audio.newSound("audio/sfx_footstep_alsphalt_3.wav", 2)];
+export const sndDogPetted = audio.newSound("audio/sfx_dog_being_petted.wav");
+export const sndDogWhimpering = [
+	audio.newSound("audio/sfx_dog_whimpering_1.wav", 2),
+	audio.newSound("audio/sfx_dog_whimpering_2.wav", 2),
+	audio.newSound("audio/sfx_dog_whimpering_3.wav", 2)];
+export const sndObjectiveGet = audio.newSound("audio/sfx_dog_eating.wav");
 export const sndCompleteLevel = audio.newSound("audio/completeLevel.wav");
 
 // Art assets.
@@ -19,6 +32,8 @@ export const grassEdge = [
 	graphics.newSubImage(tiles, 80, 0, 16, 16)];
 export const road = graphics.newSubImage(tiles, 0, 16, 16, 16);
 export const roadDash = graphics.newSubImage(tiles, 16, 16, 16, 16, 8, 0);
+export const rock = [
+	graphics.newSubImage(tiles, 48, 48, 16, 16, 0, 0)];
 export const tree = [
 	graphics.newSubImage(tiles, 0, 32, 16, 32, 0, 18),
 	graphics.newSubImage(tiles, 16, 32, 16, 32, 0, 18),

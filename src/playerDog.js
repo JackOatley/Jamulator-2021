@@ -7,7 +7,9 @@ import { maps, mapGet } from "./maps.js";
 import {
 	sprPlayerDog,
 	sprUnitShadow,
-	sndPlayerMove
+	sndPlayerWalkGrass,
+	sndPlayerWalkAlsphalt,
+	sndDogWhimpering
 } from "./resources.js";
 
 //
@@ -31,6 +33,7 @@ playerDog.hit = function() {
 		playerDog.moveToY = playerDog.startY;
 		playerPerson.moveToX = playerPerson.startX;
 		playerPerson.moveToY = playerPerson.startY;
+		game.audio.play(sndDogWhimpering);
 	}
 }
 
@@ -49,14 +52,17 @@ playerDog.update = function() {
 	let next = this;
 
 	if (this.moveToX !== this.x || this.moveToY !== this.y) {
-		this.x += Math.sign(this.moveToX - this.x);
-		this.y += Math.sign(this.moveToY - this.y);
-		next = this.nextMove;
-		if (math.distance(this.x, this.y, this.moveToX, this.moveToY) === 15) {
-			game.audio.play(sndPlayerMove);
+		if (math.distance(this.x, this.y, this.moveToX, this.moveToY) === 16) {
+			if (mapGet(global.level, this.x / 16, this.y / 16) === 1)
+				game.audio.play(sndPlayerWalkAlsphalt);
+			else
+				game.audio.play(sndPlayerWalkGrass);
 			playerPerson.moveToX = this.x;
 			playerPerson.moveToY = this.y;
 		}
+		this.x += Math.sign(this.moveToX - this.x);
+		this.y += Math.sign(this.moveToY - this.y);
+		next = this.nextMove;
 	}
 
 	else {
