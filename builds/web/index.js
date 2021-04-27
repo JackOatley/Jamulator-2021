@@ -49,6 +49,35 @@ var app = {
 	setMode: setMode
 };
 
+//
+const choose = (...args) => args[~~random(args.length)];
+
+//
+const clamp = (num, min, max) => Math.min(Math.max(num, min), max);
+
+//
+function distance(x1, y1, x2, y2) {
+	const x = x1 - x2, y = y1 - y2;
+	return Math.sqrt(x * x + y * y);
+}
+
+//
+function random(x, y) {
+	switch (arguments.length) {
+		case (1): return Math.random() * x;
+		case (2): return x + Math.random() * (y - x);
+		default: return Math.random();
+	}
+}
+
+//
+var math = {
+	choose: choose,
+	clamp: clamp,
+	distance: distance,
+	random: random
+};
+
 // Create a new sound from the given src (url to file). "n" let's us specify how many instances of this sound should be generated, if we need to play multiple of the same sound at once.
 function newSound(src, n=1) {
 
@@ -68,6 +97,7 @@ function newSound(src, n=1) {
 
 // Plays a given sound. The function loops through all instances of the sound to find one that isn't playing, and plays it.
 function play(sound) {
+	if (Array.isArray(sound)) return play(choose(...sound));
 	for (let n = 0; n < sound.instances.length; n++) {
 		if (sound.instances[n].paused) {
 			return sound.instances[n].play();
@@ -293,35 +323,6 @@ var keyboard = {
 	update: update$2
 };
 
-//
-const choose = (...args) => args[~~random(args.length)];
-
-//
-const clamp = (num, min, max) => Math.min(Math.max(num, min), max);
-
-//
-function distance(x1, y1, x2, y2) {
-	const x = x1 - x2, y = y1 - y2;
-	return Math.sqrt(x * x + y * y);
-}
-
-//
-function random(x, y) {
-	switch (arguments.length) {
-		case (1): return Math.random() * x;
-		case (2): return x + Math.random() * (y - x);
-		default: return Math.random();
-	}
-}
-
-//
-var math = {
-	choose: choose,
-	clamp: clamp,
-	distance: distance,
-	random: random
-};
-
 const _down = new Array(3);
 const _pressed = new Array(3);
 const _released = new Array(3);
@@ -458,8 +459,21 @@ const global = {
 
 // Sound assets.
 const sndMusic1 = audio.newSound("audio/music1.wav");
-const sndPlayerMove = audio.newSound("audio/playerMove.wav", 2);
-const sndObjectiveGet = audio.newSound("audio/objectiveGet.wav");
+const sndAmbienceCars = audio.newSound("audio/sfx_ambience_cars.wav");
+const sndPlayerWalkGrass = [
+	audio.newSound("audio/sfx_footstep_grass_1.wav", 2),
+	audio.newSound("audio/sfx_footstep_grass_2.wav", 2),
+	audio.newSound("audio/sfx_footstep_grass_3.wav", 2)];
+const sndPlayerWalkAlsphalt = [
+	audio.newSound("audio/sfx_footstep_alsphalt_1.wav", 2),
+	audio.newSound("audio/sfx_footstep_alsphalt_2.wav", 2),
+	audio.newSound("audio/sfx_footstep_alsphalt_3.wav", 2)];
+audio.newSound("audio/sfx_dog_being_petted.wav");
+const sndDogWhimpering = [
+	audio.newSound("audio/sfx_dog_whimpering_1.wav", 2),
+	audio.newSound("audio/sfx_dog_whimpering_2.wav", 2),
+	audio.newSound("audio/sfx_dog_whimpering_3.wav", 2)];
+const sndObjectiveGet = audio.newSound("audio/sfx_dog_eating.wav");
 const sndCompleteLevel = audio.newSound("audio/completeLevel.wav");
 
 // Art assets.
@@ -475,6 +489,8 @@ const grassEdge = [
 	graphics.newSubImage(tiles, 80, 0, 16, 16)];
 const road = graphics.newSubImage(tiles, 0, 16, 16, 16);
 const roadDash = graphics.newSubImage(tiles, 16, 16, 16, 16, 8, 0);
+const rock = [
+	graphics.newSubImage(tiles, 48, 48, 16, 16, 0, 0)];
 const tree = [
 	graphics.newSubImage(tiles, 0, 32, 16, 32, 0, 18),
 	graphics.newSubImage(tiles, 16, 32, 16, 32, 0, 18),
@@ -589,10 +605,7 @@ const maps = [
 ];
 
 //
-function mapGet(map, x, y) {
-	y = Math.max(0, Math.min(y, maps[map].data.length-1));
-	return maps[map].data[y][x];
-}
+const mapGet = (map, x, y) => maps[map].data[y]?.[x];
 
 //
 const playerDog = new GameObject(sprPlayerDog, 64, 180-16);
@@ -615,6 +628,7 @@ playerDog.hit = function() {
 		playerDog.moveToY = playerDog.startY;
 		playerPerson.moveToX = playerPerson.startX;
 		playerPerson.moveToY = playerPerson.startY;
+		audio.play(sndDogWhimpering);
 	}
 };
 
@@ -626,23 +640,24 @@ playerDog.update = function() {
 		const yd = Math.min(2, math.distance(0, this.y, 0, this.startY));
 		this.x += Math.sign(this.moveToX - this.x) * xd;
 		this.y += Math.sign(this.moveToY - this.y) * yd;
-		if (this.x === this.startX && this.y === this.startY) {
-			this.isHit = false;
-		}
+		this.isHit = (this.x !== this.startX && this.y !== this.startY);
 		return;
 	}
 
 	let next = this;
 
 	if (this.moveToX !== this.x || this.moveToY !== this.y) {
-		this.x += Math.sign(this.moveToX - this.x);
-		this.y += Math.sign(this.moveToY - this.y);
-		next = this.nextMove;
-		if (math.distance(this.x, this.y, this.moveToX, this.moveToY) === 15) {
-			audio.play(sndPlayerMove);
+		if (math.distance(this.x, this.y, this.moveToX, this.moveToY) === 16) {
+			if (mapGet(global.level, this.x / 16, this.y / 16) === 1)
+				audio.play(sndPlayerWalkAlsphalt);
+			else
+				audio.play(sndPlayerWalkGrass);
 			playerPerson.moveToX = this.x;
 			playerPerson.moveToY = this.y;
 		}
+		this.x += Math.sign(this.moveToX - this.x);
+		this.y += Math.sign(this.moveToY - this.y);
+		next = this.nextMove;
 	}
 
 	else {
@@ -654,31 +669,15 @@ playerDog.update = function() {
 		}
 	}
 
-	const nowX = this.moveToX;
-	const nowY = this.moveToY;
-
-	if (keyboard.pressed("ArrowUp")
-	&& mapGet(global.level, this.moveToX / 16, this.moveToY / 16 - 1) !== -1002) {
-		next.moveToX = nowX;
-		next.moveToY = nowY - 16;
-	}
-
-	if (keyboard.pressed("ArrowDown")
-	&& mapGet(global.level, this.moveToX / 16, this.moveToY / 16 + 1) !== -1002) {
-		next.moveToX = nowX;
-		next.moveToY = nowY + 16;
-	}
-
-	if (keyboard.pressed("ArrowLeft")
-	&& mapGet(global.level, this.moveToX / 16 - 1, this.moveToY / 16) !== -1002) {
-		next.moveToX = nowX - 16;
-		next.moveToY = nowY;
-	}
-
-	if (keyboard.pressed("ArrowRight")
-	&& mapGet(global.level, this.moveToX / 16 + 1, this.moveToY / 16) !== -1002) {
-		next.moveToX = nowX + 16;
-		next.moveToY = nowY;
+	//
+	const dx = -keyboard.pressed("ArrowLeft") + keyboard.pressed("ArrowRight");
+	const dy = -keyboard.pressed("ArrowUp") + keyboard.pressed("ArrowDown");
+	const nx = this.moveToX / 16 + dx;
+	const ny = this.moveToY / 16 + dy;
+	const nextTile = mapGet(global.level, nx, ny);
+	if ((dx !== 0 || dy !== 0) && nextTile !== -1002 && nextTile !== undefined) {
+		next.moveToX = nx * 16;
+		next.moveToY = ny * 16;
 	}
 
 };
@@ -788,30 +787,35 @@ function generateMap(map) {
 
 	gameObjects.push(objective, finish);
 
+	const level = global.level;
 	for (let y = 0; y < map.data.length; y++)
 	for (let x = 0; x < 20; x++) {
 
 		const alt = (x + y) % 2;
 		const alty = y % 2;
 
-		if (mapGet(global.level, x, y) <= 0 && mapGet(global.level, x, y+1) === 1)
+		let frill = true;
+
+		if (mapGet(level, x, y) <= 0 && mapGet(level, x, y+1) === 1)
 			gameObjects.push(new GameObject(grassEdge[alt], x*16, y*16));
 
-		else if (mapGet(global.level, x, y) <= 0)
+		else if (mapGet(level, x, y) <= 0)
 			gameObjects.push(new GameObject(grass[alt], x*16, y*16));
 
 		// Trees.
-		if (mapGet(global.level, x, y) === -1002) {
+		if (mapGet(level, x, y) === -1002) {
 			const t = math.choose(0, 1, 2);
-			gameObjects.push(new GameObject(tree[t], x*16, y*16, 20 + y / 1000));
+			gameObjects.push(new GameObject(tree[t], x*16, y*16, 20 + y / 1e3));
 			gameObjects.push(new GameObject(treeShadow[t], x*16, y*16, 1));
+			frill = false;
 		}
 
 		// Road.
-		if (mapGet(global.level, x, y) === 1) {
+		if (mapGet(level, x, y) === 1) {
 			gameObjects.push(new GameObject(road, x*16, y*16));
+			frill = false;
 			// Road dashes.
-			if (mapGet(global.level, x, y+1) === 1 && (x % 2 === 0))
+			if (mapGet(level, x, y+1) === 1 && (x % 2 === 0))
 				gameObjects.push(new GameObject(roadDash, x*16, y*16+8));
 			// Car spawners
 			if (x-1 < 0 && alty)
@@ -821,27 +825,34 @@ function generateMap(map) {
 		}
 
 		// Objective.
-		if (mapGet(global.level, x, y) === -1003) {
+		if (mapGet(level, x, y) === -1003) {
 			[objective.x, objective.y] = [x * 16, y * 16];
+			frill = false;
 		}
 
 		// Finish.
-		if (mapGet(global.level, x, y) === -1004) {
+		if (mapGet(level, x, y) === -1004) {
 			[finish.x, finish.y] = [x * 16, y * 16];
+			frill = false;
 		}
 
 		// Player dog.
-		if (mapGet(global.level, x, y) === -1000) {
+		if (mapGet(level, x, y) === -1000) {
 			[playerDog.x, playerDog.y] = [x * 16, y * 16];
 			[playerDog.startX, playerDog.startY] = [x * 16, y * 16];
 			[playerDog.moveToX, playerDog.moveToY] = [x * 16, y * 16];
 		}
 
 		// Player person.
-		if (mapGet(global.level, x, y) === -1001) {
+		if (mapGet(level, x, y) === -1001) {
 			[playerPerson.x, playerPerson.y] = [x * 16, y * 16];
 			[playerPerson.startX, playerPerson.startY] = [x * 16, y * 16];
 			[playerPerson.moveToX, playerPerson.moveToY] = [x * 16, y * 16];
+		}
+
+		//
+		if (frill && Math.random() < 0.1) {
+			gameObjects.push(new GameObject(rock[0], x*16, y*16));
 		}
 
 	}
@@ -858,7 +869,10 @@ app.setMode({
 });
 
 document.addEventListener("keydown", function(e) {
-    if (!audio.isPlaying(sndMusic1)) ;
+    if (!audio.isPlaying(sndMusic1)) {
+		audio.loop(sndMusic1);
+		audio.loop(sndAmbienceCars);
+	}
 });
 
 const map = maps[global.level];
