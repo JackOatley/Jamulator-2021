@@ -72,11 +72,6 @@ export function points(...c) {
 	target.fill();
 }
 
-// Print text at a given position.
-export function print(text, x, y) {
-	target.fillText(text, x, y);
-}
-
 //
 export function rectangle(x, y, w, h) {
 	target.beginPath();
@@ -92,6 +87,11 @@ export function setColor(r, g, b, a=1) {
 //------------------------------------------------------------------------------
 // Text.
 //------------------------------------------------------------------------------
+
+// Print text at a given position.
+export function print(text, x, y) {
+	target.fillText(text, x, y);
+}
 
 // Set font from a CSS font shorthand string.
 // https://developer.mozilla.org/en-US/docs/Web/CSS/font
