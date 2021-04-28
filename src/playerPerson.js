@@ -30,13 +30,8 @@ playerPerson.update = function() {
 		return;
 	}
 
-	let next = this;
-
-	if (this.moveToX !== this.x || this.moveToY !== this.y) {
-		this.x += Math.sign(this.moveToX - this.x);
-		this.y += Math.sign(this.moveToY - this.y);
-		next = this.nextMove;
-	}
+	this.x += Math.sign(this.moveToX - this.x);
+	this.y += Math.sign(this.moveToY - this.y);
 
 }
 

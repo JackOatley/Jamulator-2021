@@ -24,9 +24,12 @@ objMenu.update = function() {
 
 objMenu.draw = function() {
 	graphics.setColor(255, 255, 255, 1);
-	graphics.setFont("small-caps bold 16px sans-serif");
+	graphics.setFont("small-caps bold 48px sans-serif");
 	graphics.setTextAlign("center");
 	graphics.setTextBaseline("middle");
+	graphics.print("Guide Dog", 160, 60);
+	graphics.setFont("small-caps bold 16px sans-serif");
+	graphics.print("SIMULATOR", 160, 90);
 	graphics.print("press SPACE to play", 160, 142);
 }
 
@@ -39,8 +42,5 @@ export function startMenu() {
 		const alt = (x + y) % 2;
 		gameObjects.push(new GameObject(grass[alt], x * 16, y * 16));
 	}
-
-	//
-	gameObjects.push(new GameObject(sprTitle, 320/2, 180/2 - 16, 100));
 
 }

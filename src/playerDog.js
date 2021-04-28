@@ -24,6 +24,7 @@ playerDog.depth = 10;
 playerDog.moveToX = playerDog.x;
 playerDog.moveToY = playerDog.y;
 playerDog.nextMove = {};
+playerDog.moving = false;
 
 //
 playerDog.hit = function() {
@@ -51,8 +52,14 @@ playerDog.update = function() {
 
 	let next = this;
 
+	// Fix potential diagonal movement.
+	if (this.moveToX !== this.x && this.moveToY !== this.y) {
+		this.moveToY = this.y;
+	}
+
 	if (this.moveToX !== this.x || this.moveToY !== this.y) {
-		if (math.distance(this.x, this.y, this.moveToX, this.moveToY) === 16) {
+		if (!this.moving) {
+			this.moving = true;
 			if (mapGet(global.level, this.x / 16, this.y / 16) === 1)
 				game.audio.play(sndPlayerWalkAlsphalt);
 			else
@@ -65,7 +72,8 @@ playerDog.update = function() {
 		next = this.nextMove;
 	}
 
-	else {
+	if (this.moveToX === this.x && this.moveToY === this.y) {
+		this.moving = false;
 		if (this.nextMove.moveToX !== undefined
 		||  this.nextMove.moveToY !== undefined) {
 			this.moveToX = this.nextMove.moveToX ?? this.x;
@@ -75,8 +83,9 @@ playerDog.update = function() {
 	}
 
 	//
-	const dx = -keyboard.pressed("ArrowLeft") + keyboard.pressed("ArrowRight");
-	const dy = -keyboard.pressed("ArrowUp") + keyboard.pressed("ArrowDown");
+	let dx = -keyboard.pressed("ArrowLeft") + keyboard.pressed("ArrowRight");
+	let dy = -keyboard.pressed("ArrowUp") + keyboard.pressed("ArrowDown");
+	[dx, dy] = (dx !== 0) ? [dx, 0] : [0, dy];
 	const nx = this.moveToX / 16 + dx;
 	const ny = this.moveToY / 16 + dy;
 	const nextTile = mapGet(global.level, nx, ny);

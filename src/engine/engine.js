@@ -1,6 +1,6 @@
 import app from "./app.js";
 import audio from "./audio.js";
-import graphics from "./graphics.js";
+import * as graphics from "./graphics.js";
 import keyboard from "./keyboard.js";
 import math from "./math.js";
 import mouse from "./mouse.js";

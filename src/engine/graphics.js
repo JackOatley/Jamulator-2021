@@ -89,27 +89,19 @@ export function setColor(r, g, b, a=1) {
 //------------------------------------------------------------------------------
 
 // Print text at a given position.
-export function print(text, x, y) {
-	target.fillText(text, x, y);
-}
+export const print = (text, x, y) => target.fillText(text, x, y);
 
 // Set font from a CSS font shorthand string.
 // https://developer.mozilla.org/en-US/docs/Web/CSS/font
-export function setFont(font) {
-	target.font = font;
-}
+export const setFont = (font) => target.font = font;
 
 // Set text alignment.
 // Can be; "left", "right", "center", "start", "end".
-export function setTextAlign(x) {
-	target.textAlign = x;
-}
+export const setTextAlign = (x) => target.textAlign = x;
 
 // Set text baseline.
 // Can be; "top", "hanging", "middle", "alphabetic", "ideographic", "bottom".
-export function setTextBaseline(x) {
-	target.textBaseline = x;
-}
+export const setTextBaseline = (x) => target.textBaseline = x;
 
 //------------------------------------------------------------------------------
 // Transomation.
@@ -126,24 +118,3 @@ export const translate = (x, y) => target.translate(x, y);
 
 //
 export const scale = (x, y) => target.scale(x, y);
-
-//
-export default {
-	circle: circle,
-	clear: clear,
-	draw: draw,
-	line: line,
-	newImage: newImage,
-	newSubImage: newSubImage,
-	points: points,
-	print: print,
-	rectangle: rectangle,
-	setColor: setColor,
-	setFont: setFont,
-	setTextAlign: setTextAlign,
-	setTextBaseline: setTextBaseline,
-	push: push,
-	pop: pop,
-	translate: translate,
-	scale: scale
-}

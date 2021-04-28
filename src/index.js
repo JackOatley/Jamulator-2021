@@ -12,8 +12,8 @@ import { startMenu } from "./menu.js";
 game.app.setMode({
 	name: "Jamulator 2021",
 	fullscreen: true,
-	resWidth: 320 * 2,
-	resHeight: 180 * 2
+	resWidth: 320 * 4,
+	resHeight: 180 * 4
 });
 
 document.addEventListener("keydown", function(e) {
@@ -35,7 +35,7 @@ game.draw(() => {
 	graphics.clear(0, 0, 0);
 	gameObjects.sort(depthSort);
 	graphics.push();
-	graphics.scale(2, 2);
+	graphics.scale(4, 4);
 	if (gameObjects.indexOf(playerDog) !== -1) {
 		const map = maps[global.level];
 		graphics.translate(0, math.clamp(-playerDog.y+90, -map.data.length*16+180, 0));
