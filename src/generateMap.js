@@ -97,6 +97,7 @@ export function generateMap(map) {
 
 		// Player dog.
 		if (mapGet(level, x, y) === -1000) {
+			playerDog.nextMove = {};
 			[playerDog.x, playerDog.y] = [x * 16, y * 16];
 			[playerDog.startX, playerDog.startY] = [x * 16, y * 16];
 			[playerDog.moveToX, playerDog.moveToY] = [x * 16, y * 16];

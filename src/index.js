@@ -19,14 +19,11 @@ game.app.setMode({
 document.addEventListener("keydown", function(e) {
     if (!audio.isPlaying(sndMusic1)) {
 		//game.audio.loop(sndMusic1);
-		//game.audio.loop(sndAmbienceCars);
+		game.audio.loop(sndAmbienceCars);
 	}
 });
 
 startMenu();
-
-//const map = maps[global.level];
-//generateMap(map);
 
 const depthSort = (a, b) => a.depth - b.depth;
 
