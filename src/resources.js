@@ -26,8 +26,8 @@ export const sndCompleteLevel = audio.newSound("audio/completeLevel.wav");
 // Art assets.
 export const tiles = graphics.newImage("art/tiles.png");
 export const sprTitle = graphics.newSubImage(tiles, 0, 192, 256, 64, 128, 32);
-export const sprPlayerDog = graphics.newSubImage(tiles, 48, 32, 16, 16, 0, 4);
-export const sprPlayerHuman = graphics.newSubImage(tiles, 32, 16, 16, 32, 0, 20);
+export const sprPlayerDog = graphics.newSubImage(tiles, 48, 32, 16, 16, 8, 4);
+export const sprPlayerHuman = graphics.newSubImage(tiles, 32, 16, 16, 32, 8, 20);
 export const sprUnitShadow = graphics.newSubImage(tiles, 48, 16, 16, 16, 0, 2);
 export const grass = [
 	graphics.newSubImage(tiles, 0, 0, 16, 16),

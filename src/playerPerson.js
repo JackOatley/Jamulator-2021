@@ -30,6 +30,8 @@ playerPerson.update = function() {
 		return;
 	}
 
+	const xdiff = Math.sign(this.moveToX - this.x);
+	if (xdiff !== 0) this.scaleX = xdiff;
 	this.x += Math.sign(this.moveToX - this.x);
 	this.y += Math.sign(this.moveToY - this.y);
 
@@ -38,5 +40,5 @@ playerPerson.update = function() {
 //
 playerPerson.draw = function() {
 	game.graphics.draw(sprUnitShadow, this.x, this.y);
-	game.graphics.draw(sprPlayerHuman, this.x, this.y);
+	game.graphics.draw(sprPlayerHuman, this.x + 8, this.y, 0, this.scaleX);
 }

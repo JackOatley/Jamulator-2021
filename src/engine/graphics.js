@@ -5,15 +5,33 @@ The grahics module deals with what and how things are drawn to the canvas.
 import * as app from "./app.js";
 
 // The current drawning target.
-// We use a context for this value as the canvas can be derived from that but not as easily the other way around.
+// We use a context for this value as the canvas can be derived from that but
+// not as easily the other way around.
 let target = app.ctx;
 
-// Draw a circle.
-export function circle(x, y, radius) {
-	target.beginPath();
-	target.arc(x, y, radius, 0, 2 * Math.PI);
-	target.fill();
+
+//------------------------------------------------------------------------------
+// Loading.
+//------------------------------------------------------------------------------
+
+//
+export function newImage(url, ox=0, oy=0) {
+	const img = new Image();
+	img.src = url;
+	img.ox = ox;
+	img.oy = oy;
+	return img;
 }
+
+//
+export function newSubImage(img, x, y, w, h, ox=0, oy=0) {
+	return { img: img, x: x, y: y, w: w, h: h, ox: ox, oy: oy }
+}
+
+
+//------------------------------------------------------------------------------
+// Drawing.
+//------------------------------------------------------------------------------
 
 // Clear the canvas to a given color (default opaque black).
 export function clear(r=0, g=0, b=0, a=1) {
@@ -26,7 +44,7 @@ export function clear(r=0, g=0, b=0, a=1) {
 // Draw an image, or sub-image (Object) at given position, rotation and scaling.
 export function draw(i, x=0, y=0, r=0, sx=1, sy=1) {
 	push();
-	translate(x - i.ox, y - i.oy);
+	translate(x - i.ox * sx, y - i.oy * sy);
 	scale(sx, sy);
 	if (i instanceof Image) return target.drawImage(i, x, y, i.w, i.h);
 	target.drawImage(i.img, i.x, i.y, i.w, i.h, 0, 0, i.w, i.h);
@@ -45,25 +63,6 @@ export function line(...c) {
 }
 
 //
-export function newImage(url, ox=0, oy=0) {
-	const img = new Image();
-	img.src = url;
-	img.ox = ox;
-	img.oy = oy;
-	return img;
-}
-
-//
-export function newSubImage(img, x, y, w, h, ox=0, oy=0) {
-	return {
-		img: img,
-		x: x, y: y,
-		w: w, h: h,
-		ox: ox, oy: oy
-	}
-}
-
-//
 export function points(...c) {
 	const len = ~~(c.length / 2) * 2;
 	if (len < 2) return;
@@ -79,14 +78,13 @@ export function rectangle(mode, x, y, w, h) {
 	target[mode]();
 }
 
-// Set the drawing color.
-export function setColor(r, g, b, a=1) {
-	target.strokeStyle = target.fillStyle = `rgba(${r},${g},${b},${a})`;
+// Draw a circle.
+export function circle(mode, x, y, radius) {
+	target.beginPath();
+	target.arc(x, y, radius, 0, 2 * Math.PI);
+	target[mode]();
 }
 
-//------------------------------------------------------------------------------
-// State.
-//------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
 // Text.
@@ -106,6 +104,17 @@ export const setTextAlign = (x) => target.textAlign = x;
 // Set text baseline.
 // Can be; "top", "hanging", "middle", "alphabetic", "ideographic", "bottom".
 export const setTextBaseline = (x) => target.textBaseline = x;
+
+
+//------------------------------------------------------------------------------
+// State.
+//------------------------------------------------------------------------------
+
+// Set the drawing color.
+export const setColor = (r, g, b, a=1) => {
+	target.strokeStyle = target.fillStyle = `rgba(${r},${g},${b},${a})`;
+}
+
 
 //------------------------------------------------------------------------------
 // Transomation.

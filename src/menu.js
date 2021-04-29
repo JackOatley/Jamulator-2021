@@ -19,8 +19,6 @@ objMenu.update = function() {
 	if (game.keyboard.pressed("Space")) {
 		gameObjects.length = 0;
 		levelSelect();
-		//const map = maps[global.level];
-		//generateMap(map);
 	}
 }
 

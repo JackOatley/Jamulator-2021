@@ -16,6 +16,7 @@ import {
 export const playerDog = new GameObject(sprPlayerDog, 64, 180-16);
 
 playerDog.isHit = false;
+playerDog.face = 1;
 playerDog.startX = 0;
 playerDog.startY = 0;
 playerDog.w = 12;
@@ -59,6 +60,8 @@ playerDog.update = function() {
 
 	if (this.moveToX !== this.x || this.moveToY !== this.y) {
 		if (!this.moving) {
+			const xdiff = Math.sign(this.moveToX - this.x);
+			if (xdiff !== 0) playerDog.scaleX = xdiff;
 			this.moving = true;
 			if (mapGet(global.level, this.x / 16, this.y / 16) === 1)
 				game.audio.play(sndPlayerWalkAlsphalt);
@@ -99,5 +102,5 @@ playerDog.update = function() {
 //
 playerDog.draw = function() {
 	game.graphics.draw(sprUnitShadow, this.x + 2, this.y);
-	game.graphics.draw(sprPlayerDog, this.x, this.y);
+	game.graphics.draw(sprPlayerDog, this.x + 8, this.y, 0, this.scaleX, 1);
 }
