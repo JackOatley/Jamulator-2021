@@ -14,7 +14,7 @@ import {
 //
 export function generateMap(map) {
 
-	console.log(global.level, map);
+	localStorage.setItem(`gds_level_${global.level}_unlock`, true);
 
 	let hasObjective = false;
 

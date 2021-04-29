@@ -3,7 +3,8 @@ import { graphics } from "./engine/engine.js";
 import { GameObject } from "./GameObject.js";
 import { global, gameObjects } from "./globals.js";
 import { maps } from "./maps.js";
-import { generateMap } from "./generateMap.js";
+//import { generateMap } from "./generateMap.js";
+import { levelSelect } from "./levelSelect.js";
 import {
 	sprTitle,
 	tiles, grass, grassEdge, road, roadDash,
@@ -17,8 +18,9 @@ gameObjects.push(objMenu);
 objMenu.update = function() {
 	if (game.keyboard.pressed("Space")) {
 		gameObjects.length = 0;
-		const map = maps[global.level];
-		generateMap(map);
+		levelSelect();
+		//const map = maps[global.level];
+		//generateMap(map);
 	}
 }
 

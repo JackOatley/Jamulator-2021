@@ -73,16 +73,20 @@ export function points(...c) {
 }
 
 //
-export function rectangle(x, y, w, h) {
+export function rectangle(mode, x, y, w, h) {
 	target.beginPath();
 	target.rect(x, y, w, h);
-	target.fill();
+	target[mode]();
 }
 
 // Set the drawing color.
 export function setColor(r, g, b, a=1) {
 	target.strokeStyle = target.fillStyle = `rgba(${r},${g},${b},${a})`;
 }
+
+//------------------------------------------------------------------------------
+// State.
+//------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
 // Text.
