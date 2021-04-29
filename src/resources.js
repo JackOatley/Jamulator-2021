@@ -12,6 +12,10 @@ export const sndPlayerWalkAlsphalt = [
 	audio.newSound("audio/sfx_footstep_alsphalt_2.wav", 2),
 	audio.newSound("audio/sfx_footstep_alsphalt_3.wav", 2)];
 export const sndDogPetted = audio.newSound("audio/sfx_dog_being_petted.wav");
+export const sndDogBark = [
+	audio.newSound("audio/sfx_dog_bark_1.wav", 2),
+	audio.newSound("audio/sfx_dog_bark_2.wav", 2),
+	audio.newSound("audio/sfx_dog_bark_3.wav", 2)];
 export const sndDogWhimpering = [
 	audio.newSound("audio/sfx_dog_whimpering_1.wav", 2),
 	audio.newSound("audio/sfx_dog_whimpering_2.wav", 2),

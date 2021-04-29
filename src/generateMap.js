@@ -8,7 +8,7 @@ import { CarSpawner } from "./car.js";
 import {
 	tiles, grass, grassEdge, road, roadDash,
 	tree, treeShadow, rock,
-	bone, flag, sndCompleteLevel, sndObjectiveGet
+	bone, flag, sndCompleteLevel, sndObjectiveGet, sndDogBark
 } from "./resources.js";
 
 //
@@ -22,7 +22,7 @@ export function generateMap(map) {
 	objective.update = function() {
 		if (this.x === playerDog.x
 		&&  this.y === playerDog.y) {
-			console.log("collected objective");
+			//console.log("collected objective");
 			game.audio.play(sndObjectiveGet);
 			hasObjective = true;
 			gameObjects.splice(gameObjects.indexOf(objective), 1);
@@ -34,7 +34,8 @@ export function generateMap(map) {
 		if (this.x === playerDog.x
 		&&  this.y === playerDog.y
 		&&  hasObjective) {
-			console.log("level complete");
+			//console.log("level complete");
+			game.audio.play(sndDogBark);
 			game.audio.play(sndCompleteLevel);
 			gameObjects.splice(gameObjects.indexOf(finish), 1);
 			gameObjects.length = 0;
