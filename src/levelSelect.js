@@ -69,6 +69,12 @@ class LevelBox extends GameObject {
 		graphics.rectangle("fill", this.x, this.y, 32, 32);
 		graphics.setColor(0, 0, 0, 1);
 		graphics.rectangle("stroke", this.x, this.y, 32, 32);
+
+		graphics.setFont("small-caps bold 12px sans-serif");
+		graphics.setTextAlign("center");
+		graphics.setTextBaseline("middle");
+		graphics.print("level", this.x + 16, this.y + 10);
+		graphics.print(this.id + 1, this.x + 16, this.y + 22);
 	}
 
 }
