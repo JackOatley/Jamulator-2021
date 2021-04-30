@@ -18,8 +18,8 @@ game.app.setMode({
 
 document.addEventListener("keydown", function(e) {
     if (!audio.isPlaying(sndMusic1)) {
-		//game.audio.loop(sndMusic1);
-		//game.audio.loop(sndAmbienceCars);
+		game.audio.loop(sndMusic1);
+		game.audio.loop(sndAmbienceCars);
 	}
 });
 

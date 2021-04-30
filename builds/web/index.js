@@ -220,17 +220,11 @@ const setColor = (r, g, b, a=1) => {
 // Transomation.
 //------------------------------------------------------------------------------
 
-//
 const push = () => target.save();
-
-//
 const pop = () => target.restore();
-
-//
 const translate = (x, y) => target.translate(x, y);
-
-//
 const scale = (x, y) => target.scale(x, y);
+const reset = () => target.setTransform(1, 0, 0, 1, 0, 0);
 
 const _pressed$1 = {};
 const _released$1 = {};
@@ -436,6 +430,13 @@ const sndDogWhimpering = [
 	audio.newSound("audio/sfx_dog_whimpering_3.wav", 2)];
 const sndObjectiveGet = audio.newSound("audio/sfx_dog_eating.wav");
 const sndCompleteLevel = audio.newSound("audio/completeLevel.wav");
+const sndUIWoosh = [
+	audio.newSound("audio/sfx_UI_woosh_1.wav", 10),
+	audio.newSound("audio/sfx_UI_woosh_2.wav", 10)];
+const sndUIClick = [
+	audio.newSound("audio/sfx_UI_click_1.wav", 2),
+	audio.newSound("audio/sfx_UI_click_2.wav", 2),
+	audio.newSound("audio/sfx_UI_click_3.wav", 2)];
 
 // Art assets.
 const tiles = newImage("art/tiles.png");
@@ -743,6 +744,181 @@ class Car extends GameObject {
 
 }
 
+// First level should always be unlocked.
+localStorage.setItem(`gds_level_0_unlock`, true);
+
+//
+let selected = 0;
+
+//
+const objLevelSelect = new GameObject(null, 0, 0, 100);
+
+objLevelSelect.update = function() {
+
+	// Navigate menu.
+	const old = selected;
+	if (keyboard.pressed("ArrowRight")) selected = (selected + 1) % 10;
+	if (keyboard.pressed("ArrowLeft")) selected = (selected + 9) % 10;
+	if (keyboard.pressed("ArrowUp")) selected = (selected + 15) % 10;
+	if (keyboard.pressed("ArrowDown")) selected = (selected + 5) % 10;
+	if (old !== selected) audio.play(sndUIWoosh);
+
+};
+
+objLevelSelect.draw = function() {
+	setColor(255, 255, 255, 1);
+	setTextAlign("center");
+	setTextBaseline("middle");
+	setFont("small-caps bold 16px sans-serif");
+	print("Select a level:", 160, 32);
+};
+
+//
+class LevelBox extends GameObject {
+
+	constructor(x, y, id) {
+		super(null, x, y);
+		this.id = id;
+		this.unlock = localStorage.getItem(`gds_level_${id}_unlock`) ?? false;
+	}
+
+	update() {
+		if (this.unlock && this.id === selected && keyboard.pressed("Space")) {
+			audio.play(sndUIClick);
+			gameObjects.length = 0;
+			global.level = this.id;
+			const map = maps[global.level];
+			generateMap(map);
+		}
+	}
+
+	draw() {
+		const color = (this.unlock) ? 255 : 100;
+		const alpha = (selected === this.id) ? 1 : 0.5;
+		setColor(color, color, color, alpha);
+
+		rectangle("fill", this.x, this.y, 32, 32);
+		setColor(0, 0, 0, 1);
+		rectangle("stroke", this.x, this.y, 32, 32);
+
+		setFont("small-caps bold 12px sans-serif");
+		setTextAlign("center");
+		setTextBaseline("middle");
+		print("level", this.x + 16, this.y + 10);
+		print(this.id + 1, this.x + 16, this.y + 22);
+	}
+
+}
+
+//
+function levelSelect() {
+
+	gameObjects.length = 0;
+	gameObjects.push(objLevelSelect);
+
+	// Generate a background
+	for (let x = 0; x < 20; x++)
+	for (let y = 0; y < 12; y++) {
+		const alt = (x + y) % 2;
+		gameObjects.push(new GameObject(grass[alt], x * 16, y * 16));
+	}
+
+	// Generate a background
+	for (let n = 0, y = 0; y < 2; y++)
+	for (let x = 0; x < 5; x++, n++) {
+		gameObjects.push(new LevelBox(48 + x * 48, 64 + y * 48, n));
+	}
+
+}
+
+//
+const objMenu = new GameObject(sprTitle, 0, 0, 100);
+
+objMenu.update = function() {
+	if (keyboard.pressed("Space")) {
+		gameObjects.length = 0;
+		levelSelect();
+	}
+};
+
+objMenu.draw = function() {
+	setColor(255, 255, 255, 1);
+	setFont("small-caps bold 48px sans-serif");
+	setTextAlign("center");
+	setTextBaseline("middle");
+	print("Guide Dog", 160, 60);
+	setFont("small-caps bold 16px sans-serif");
+	print("SIMULATOR", 160, 90);
+	print("press SPACE to play", 160, 142);
+};
+
+//
+function startMenu() {
+
+	// Generate a background
+	for (let x = 0; x < 20; x++)
+	for (let y = 0; y < 12; y++) {
+		const alt = (x + y) % 2;
+		gameObjects.push(new GameObject(grass[alt], x * 16, y * 16));
+	}
+
+	gameObjects.push(objMenu);
+
+}
+
+//
+class Prompt extends GameObject {
+
+	constructor() {
+		super();
+		this.x = 320 / 2;
+		this.y = 180 / 2;
+		this.depth = 1e4;
+		gameObjects.push(this);
+	}
+
+	update() {
+
+		if (keyboard.pressed("Space")) {
+			audio.play(sndUIWoosh);
+			gameObjects.length = 0;
+			global.level += 1;
+			if (global.level >= maps.length) global.level = 0;
+			return generateMap(maps[global.level]);
+		}
+
+		if (keyboard.pressed("Escape")) {
+			audio.play(sndUIWoosh);
+			gameObjects.length = 0;
+			global.level = 0;
+			return startMenu();
+		}
+
+	}
+
+	draw() {
+		push();
+		reset();
+		scale(4, 4);
+		setColor(255, 255, 255, 1);
+		rectangle("fill", this.x - 100, this.y - 50, 200, 100);
+		setColor(0, 0, 0, 1);
+		rectangle("stroke", this.x - 100, this.y - 50, 200, 100);
+
+		setFont("small-caps bold 24px sans-serif");
+		setTextAlign("center");
+		setTextBaseline("middle");
+		print("Level Completed!", this.x, this.y - 24);
+
+		setFont("small-caps bold 12px sans-serif");
+		print("SPACE to continue", this.x, this.y + 8);
+		print("ESC to return to menu", this.x, this.y + 24);
+
+		pop();
+	}
+
+}
+
 //
 function generateMap(map) {
 
@@ -770,10 +946,7 @@ function generateMap(map) {
 			audio.play(sndDogBark);
 			audio.play(sndCompleteLevel);
 			gameObjects.splice(gameObjects.indexOf(finish), 1);
-			gameObjects.length = 0;
-			global.level += 1;
-			if (global.level >= maps.length) global.level = 0;
-			generateMap(maps[global.level]);
+			new Prompt();
 		}
 	};
 
@@ -851,124 +1024,6 @@ function generateMap(map) {
 	}
 
 	gameObjects.push(playerDog, playerPerson);
-
-}
-
-// First level should always be unlocked.
-localStorage.setItem(`gds_level_0_unlock`, true);
-
-//
-let selected = 0;
-
-//
-const objLevelSelect = new GameObject(null, 0, 0, 100);
-
-objLevelSelect.update = function() {
-
-	// Navigate menu.
-	if (keyboard.pressed("ArrowRight")) selected = (selected + 1) % 10;
-	if (keyboard.pressed("ArrowLeft")) selected = (selected + 9) % 10;
-	if (keyboard.pressed("ArrowUp")) selected = (selected + 15) % 10;
-	if (keyboard.pressed("ArrowDown")) selected = (selected + 5) % 10;
-
-};
-
-objLevelSelect.draw = function() {
-	setColor(255, 255, 255, 1);
-	setTextAlign("center");
-	setTextBaseline("middle");
-	setFont("small-caps bold 16px sans-serif");
-	print("Select a level:", 160, 32);
-};
-
-//
-class LevelBox extends GameObject {
-
-	constructor(x, y, id) {
-		super(null, x, y);
-		this.id = id;
-		this.unlock = localStorage.getItem(`gds_level_${id}_unlock`) ?? false;
-	}
-
-	update() {
-
-		// Select level.
-		if (this.unlock && this.id === selected && keyboard.pressed("Space")) {
-			gameObjects.length = 0;
-			global.level = this.id;
-			const map = maps[global.level];
-			generateMap(map);
-		}
-
-	}
-
-	draw() {
-		if (this.unlock) {
-			if (selected === this.id) setColor(255, 255, 255, 1);
-			else setColor(255, 255, 255, 0.5);
-		} else {
-			if (selected === this.id) setColor(100, 100, 100, 1);
-			else setColor(100, 100, 100, 0.5);
-		}
-		rectangle("fill", this.x, this.y, 32, 32);
-		setColor(0, 0, 0, 1);
-		rectangle("stroke", this.x, this.y, 32, 32);
-	}
-
-}
-
-//
-function levelSelect() {
-
-	gameObjects.length = 0;
-	gameObjects.push(objLevelSelect);
-
-	// Generate a background
-	for (let x = 0; x < 20; x++)
-	for (let y = 0; y < 12; y++) {
-		const alt = (x + y) % 2;
-		gameObjects.push(new GameObject(grass[alt], x * 16, y * 16));
-	}
-
-	// Generate a background
-	for (let n = 0, y = 0; y < 2; y++)
-	for (let x = 0; x < 5; x++, n++) {
-		gameObjects.push(new LevelBox(48 + x * 48, 64 + y * 48, n));
-	}
-
-}
-
-//
-const objMenu = new GameObject(sprTitle, 0, 0, 100);
-gameObjects.push(objMenu);
-
-objMenu.update = function() {
-	if (keyboard.pressed("Space")) {
-		gameObjects.length = 0;
-		levelSelect();
-	}
-};
-
-objMenu.draw = function() {
-	setColor(255, 255, 255, 1);
-	setFont("small-caps bold 48px sans-serif");
-	setTextAlign("center");
-	setTextBaseline("middle");
-	print("Guide Dog", 160, 60);
-	setFont("small-caps bold 16px sans-serif");
-	print("SIMULATOR", 160, 90);
-	print("press SPACE to play", 160, 142);
-};
-
-//
-function startMenu() {
-
-	// Generate a background
-	for (let x = 0; x < 20; x++)
-	for (let y = 0; y < 12; y++) {
-		const alt = (x + y) % 2;
-		gameObjects.push(new GameObject(grass[alt], x * 16, y * 16));
-	}
 
 }
 
