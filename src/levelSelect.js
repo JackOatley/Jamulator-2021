@@ -1,14 +1,9 @@
-import * as game from "./engine/engine.js";
-import { graphics } from "./engine/engine.js";
+import { audio, graphics, keyboard } from "./engine/engine.js";
 import { GameObject } from "./GameObject.js";
 import { global, gameObjects } from "./globals.js";
 import { maps } from "./maps.js";
 import { generateMap } from "./generateMap.js";
-import {
-	sprTitle,
-	tiles, grass, grassEdge, road, roadDash,
-	tree, treeShadow, rock,
-} from "./resources.js";
+import { grass, sndUIWoosh, sndUIClick } from "./resources.js";
 
 // First level should always be unlocked.
 localStorage.setItem(`gds_level_0_unlock`, true);
@@ -22,10 +17,12 @@ const objLevelSelect = new GameObject(null, 0, 0, 100);
 objLevelSelect.update = function() {
 
 	// Navigate menu.
-	if (game.keyboard.pressed("ArrowRight")) selected = (selected + 1) % 10;
-	if (game.keyboard.pressed("ArrowLeft")) selected = (selected + 9) % 10;
-	if (game.keyboard.pressed("ArrowUp")) selected = (selected + 15) % 10;
-	if (game.keyboard.pressed("ArrowDown")) selected = (selected + 5) % 10;
+	const old = selected;
+	if (keyboard.pressed("ArrowRight")) selected = (selected + 1) % 10;
+	if (keyboard.pressed("ArrowLeft")) selected = (selected + 9) % 10;
+	if (keyboard.pressed("ArrowUp")) selected = (selected + 15) % 10;
+	if (keyboard.pressed("ArrowDown")) selected = (selected + 5) % 10;
+	if (old !== selected) audio.play(sndUIWoosh);
 
 }
 
@@ -47,25 +44,20 @@ class LevelBox extends GameObject {
 	}
 
 	update() {
-
-		// Select level.
-		if (this.unlock && this.id === selected && game.keyboard.pressed("Space")) {
+		if (this.unlock && this.id === selected && keyboard.pressed("Space")) {
+			audio.play(sndUIClick);
 			gameObjects.length = 0;
 			global.level = this.id;
 			const map = maps[global.level];
 			generateMap(map);
 		}
-
 	}
 
 	draw() {
-		if (this.unlock) {
-			if (selected === this.id) graphics.setColor(255, 255, 255, 1);
-			else graphics.setColor(255, 255, 255, 0.5);
-		} else {
-			if (selected === this.id) graphics.setColor(100, 100, 100, 1);
-			else graphics.setColor(100, 100, 100, 0.5);
-		}
+		const color = (this.unlock) ? 255 : 100;
+		const alpha = (selected === this.id) ? 1 : 0.5;
+		graphics.setColor(color, color, color, alpha);
+
 		graphics.rectangle("fill", this.x, this.y, 32, 32);
 		graphics.setColor(0, 0, 0, 1);
 		graphics.rectangle("stroke", this.x, this.y, 32, 32);

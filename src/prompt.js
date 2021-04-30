@@ -1,15 +1,10 @@
-import * as game from "./engine/engine.js";
-import { graphics } from "./engine/engine.js";
+import { audio, graphics, keyboard } from "./engine/engine.js";
 import { GameObject } from "./GameObject.js";
 import { global, gameObjects } from "./globals.js";
 import { maps } from "./maps.js";
 import { generateMap } from "./generateMap.js";
 import { startMenu } from "./menu.js";
-import {
-	sprTitle,
-	tiles, grass, grassEdge, road, roadDash,
-	tree, treeShadow, rock,
-} from "./resources.js";
+import { sndUIWoosh } from "./resources.js";
 
 //
 export class Prompt extends GameObject {
@@ -24,14 +19,16 @@ export class Prompt extends GameObject {
 
 	update() {
 
-		if (game.keyboard.pressed("Space")) {
+		if (keyboard.pressed("Space")) {
+			audio.play(sndUIWoosh);
 			gameObjects.length = 0;
 			global.level += 1;
 			if (global.level >= maps.length) global.level = 0;
 			return generateMap(maps[global.level]);
 		}
 
-		if (game.keyboard.pressed("Escape")) {
+		if (keyboard.pressed("Escape")) {
+			audio.play(sndUIWoosh);
 			gameObjects.length = 0;
 			global.level = 0;
 			return startMenu();

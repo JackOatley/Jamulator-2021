@@ -22,6 +22,13 @@ export const sndDogWhimpering = [
 	audio.newSound("audio/sfx_dog_whimpering_3.wav", 2)];
 export const sndObjectiveGet = audio.newSound("audio/sfx_dog_eating.wav");
 export const sndCompleteLevel = audio.newSound("audio/completeLevel.wav");
+export const sndUIWoosh = [
+	audio.newSound("audio/sfx_UI_woosh_1.wav", 10),
+	audio.newSound("audio/sfx_UI_woosh_2.wav", 10)];
+export const sndUIClick = [
+	audio.newSound("audio/sfx_UI_click_1.wav", 2),
+	audio.newSound("audio/sfx_UI_click_2.wav", 2),
+	audio.newSound("audio/sfx_UI_click_3.wav", 2)];
 
 // Art assets.
 export const tiles = graphics.newImage("art/tiles.png");
