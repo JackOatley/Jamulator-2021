@@ -120,14 +120,8 @@ export const setColor = (r, g, b, a=1) => {
 // Transomation.
 //------------------------------------------------------------------------------
 
-//
 export const push = () => target.save();
-
-//
 export const pop = () => target.restore();
-
-//
 export const translate = (x, y) => target.translate(x, y);
-
-//
 export const scale = (x, y) => target.scale(x, y);
+export const reset = () => target.setTransform(1, 0, 0, 1, 0, 0);

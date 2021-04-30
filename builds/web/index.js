@@ -132,26 +132,14 @@ The grahics module deals with what and how things are drawn to the canvas.
 */
 
 // The current drawning target.
-// We use a context for this value as the canvas can be derived from that but not as easily the other way around.
+// We use a context for this value as the canvas can be derived from that but
+// not as easily the other way around.
 let target = ctx;
 
-// Clear the canvas to a given color (default opaque black).
-function clear(r=0, g=0, b=0, a=1) {
-	target.save();
-	setColor(r, g, b, a);
-	target.fillRect(0, 0, target.canvas.width, target.canvas.height);
-	target.restore();
-}
 
-// Draw an image, or sub-image (Object) at given position, rotation and scaling.
-function draw$1(i, x=0, y=0, r=0, sx=1, sy=1) {
-	push();
-	translate(x - i.ox, y - i.oy);
-	scale(sx, sy);
-	if (i instanceof Image) return target.drawImage(i, x, y, i.w, i.h);
-	target.drawImage(i.img, i.x, i.y, i.w, i.h, 0, 0, i.w, i.h);
-	pop();
-}
+//------------------------------------------------------------------------------
+// Loading.
+//------------------------------------------------------------------------------
 
 //
 function newImage(url, ox=0, oy=0) {
@@ -164,18 +152,39 @@ function newImage(url, ox=0, oy=0) {
 
 //
 function newSubImage(img, x, y, w, h, ox=0, oy=0) {
-	return {
-		img: img,
-		x: x, y: y,
-		w: w, h: h,
-		ox: ox, oy: oy
-	}
+	return { img: img, x: x, y: y, w: w, h: h, ox: ox, oy: oy }
 }
 
-// Set the drawing color.
-function setColor(r, g, b, a=1) {
-	target.strokeStyle = target.fillStyle = `rgba(${r},${g},${b},${a})`;
+
+//------------------------------------------------------------------------------
+// Drawing.
+//------------------------------------------------------------------------------
+
+// Clear the canvas to a given color (default opaque black).
+function clear(r=0, g=0, b=0, a=1) {
+	target.save();
+	setColor(r, g, b, a);
+	target.fillRect(0, 0, target.canvas.width, target.canvas.height);
+	target.restore();
 }
+
+// Draw an image, or sub-image (Object) at given position, rotation and scaling.
+function draw$1(i, x=0, y=0, r=0, sx=1, sy=1) {
+	push();
+	translate(x - i.ox * sx, y - i.oy * sy);
+	scale(sx, sy);
+	if (i instanceof Image) return target.drawImage(i, x, y, i.w, i.h);
+	target.drawImage(i.img, i.x, i.y, i.w, i.h, 0, 0, i.w, i.h);
+	pop();
+}
+
+//
+function rectangle(mode, x, y, w, h) {
+	target.beginPath();
+	target.rect(x, y, w, h);
+	target[mode]();
+}
+
 
 //------------------------------------------------------------------------------
 // Text.
@@ -195,6 +204,17 @@ const setTextAlign = (x) => target.textAlign = x;
 // Set text baseline.
 // Can be; "top", "hanging", "middle", "alphabetic", "ideographic", "bottom".
 const setTextBaseline = (x) => target.textBaseline = x;
+
+
+//------------------------------------------------------------------------------
+// State.
+//------------------------------------------------------------------------------
+
+// Set the drawing color.
+const setColor = (r, g, b, a=1) => {
+	target.strokeStyle = target.fillStyle = `rgba(${r},${g},${b},${a})`;
+};
+
 
 //------------------------------------------------------------------------------
 // Transomation.
@@ -395,7 +415,7 @@ const global = {
 };
 
 // Sound assets.
-const sndMusic1 = audio.newSound("audio/music1.wav");
+const sndMusic1 = audio.newSound("audio/Jamulator_m_01_v01.ogg");
 const sndAmbienceCars = audio.newSound("audio/sfx_ambience_cars_ogg.oga");
 const sndPlayerWalkGrass = [
 	audio.newSound("audio/sfx_footstep_grass_1.wav", 2),
@@ -406,6 +426,10 @@ const sndPlayerWalkAlsphalt = [
 	audio.newSound("audio/sfx_footstep_alsphalt_2.wav", 2),
 	audio.newSound("audio/sfx_footstep_alsphalt_3.wav", 2)];
 audio.newSound("audio/sfx_dog_being_petted.wav");
+const sndDogBark = [
+	audio.newSound("audio/sfx_dog_bark_1.wav", 2),
+	audio.newSound("audio/sfx_dog_bark_2.wav", 2),
+	audio.newSound("audio/sfx_dog_bark_3.wav", 2)];
 const sndDogWhimpering = [
 	audio.newSound("audio/sfx_dog_whimpering_1.wav", 2),
 	audio.newSound("audio/sfx_dog_whimpering_2.wav", 2),
@@ -416,8 +440,8 @@ const sndCompleteLevel = audio.newSound("audio/completeLevel.wav");
 // Art assets.
 const tiles = newImage("art/tiles.png");
 const sprTitle = newSubImage(tiles, 0, 192, 256, 64, 128, 32);
-const sprPlayerDog = newSubImage(tiles, 48, 32, 16, 16, 0, 4);
-const sprPlayerHuman = newSubImage(tiles, 32, 16, 16, 32, 0, 20);
+const sprPlayerDog = newSubImage(tiles, 48, 32, 16, 16, 8, 4);
+const sprPlayerHuman = newSubImage(tiles, 32, 16, 16, 32, 8, 20);
 const sprUnitShadow = newSubImage(tiles, 48, 16, 16, 16, 0, 2);
 const grass = [
 	newSubImage(tiles, 0, 0, 16, 16),
@@ -474,6 +498,8 @@ playerPerson.update = function() {
 		return;
 	}
 
+	const xdiff = Math.sign(this.moveToX - this.x);
+	if (xdiff !== 0) this.scaleX = xdiff;
 	this.x += Math.sign(this.moveToX - this.x);
 	this.y += Math.sign(this.moveToY - this.y);
 
@@ -482,7 +508,7 @@ playerPerson.update = function() {
 //
 playerPerson.draw = function() {
 	draw$1(sprUnitShadow, this.x, this.y);
-	draw$1(sprPlayerHuman, this.x, this.y);
+	draw$1(sprPlayerHuman, this.x + 8, this.y, 0, this.scaleX);
 };
 
 // 0 = grass
@@ -564,6 +590,7 @@ const mapGet = (map, x, y) => maps[map].data[y]?.[x];
 const playerDog = new GameObject(sprPlayerDog, 64, 180-16);
 
 playerDog.isHit = false;
+playerDog.face = 1;
 playerDog.startX = 0;
 playerDog.startY = 0;
 playerDog.w = 12;
@@ -607,6 +634,8 @@ playerDog.update = function() {
 
 	if (this.moveToX !== this.x || this.moveToY !== this.y) {
 		if (!this.moving) {
+			const xdiff = Math.sign(this.moveToX - this.x);
+			if (xdiff !== 0) playerDog.scaleX = xdiff;
 			this.moving = true;
 			if (mapGet(global.level, this.x / 16, this.y / 16) === 1)
 				audio.play(sndPlayerWalkAlsphalt);
@@ -647,7 +676,7 @@ playerDog.update = function() {
 //
 playerDog.draw = function() {
 	draw$1(sprUnitShadow, this.x + 2, this.y);
-	draw$1(sprPlayerDog, this.x, this.y);
+	draw$1(sprPlayerDog, this.x + 8, this.y, 0, this.scaleX, 1);
 };
 
 //
@@ -717,7 +746,7 @@ class Car extends GameObject {
 //
 function generateMap(map) {
 
-	console.log(global.level, map);
+	localStorage.setItem(`gds_level_${global.level}_unlock`, true);
 
 	let hasObjective = false;
 
@@ -725,7 +754,7 @@ function generateMap(map) {
 	objective.update = function() {
 		if (this.x === playerDog.x
 		&&  this.y === playerDog.y) {
-			console.log("collected objective");
+			//console.log("collected objective");
 			audio.play(sndObjectiveGet);
 			hasObjective = true;
 			gameObjects.splice(gameObjects.indexOf(objective), 1);
@@ -737,7 +766,8 @@ function generateMap(map) {
 		if (this.x === playerDog.x
 		&&  this.y === playerDog.y
 		&&  hasObjective) {
-			console.log("level complete");
+			//console.log("level complete");
+			audio.play(sndDogBark);
 			audio.play(sndCompleteLevel);
 			gameObjects.splice(gameObjects.indexOf(finish), 1);
 			gameObjects.length = 0;
@@ -824,6 +854,90 @@ function generateMap(map) {
 
 }
 
+// First level should always be unlocked.
+localStorage.setItem(`gds_level_0_unlock`, true);
+
+//
+let selected = 0;
+
+//
+const objLevelSelect = new GameObject(null, 0, 0, 100);
+
+objLevelSelect.update = function() {
+
+	// Navigate menu.
+	if (keyboard.pressed("ArrowRight")) selected = (selected + 1) % 10;
+	if (keyboard.pressed("ArrowLeft")) selected = (selected + 9) % 10;
+	if (keyboard.pressed("ArrowUp")) selected = (selected + 15) % 10;
+	if (keyboard.pressed("ArrowDown")) selected = (selected + 5) % 10;
+
+};
+
+objLevelSelect.draw = function() {
+	setColor(255, 255, 255, 1);
+	setTextAlign("center");
+	setTextBaseline("middle");
+	setFont("small-caps bold 16px sans-serif");
+	print("Select a level:", 160, 32);
+};
+
+//
+class LevelBox extends GameObject {
+
+	constructor(x, y, id) {
+		super(null, x, y);
+		this.id = id;
+		this.unlock = localStorage.getItem(`gds_level_${id}_unlock`) ?? false;
+	}
+
+	update() {
+
+		// Select level.
+		if (this.unlock && this.id === selected && keyboard.pressed("Space")) {
+			gameObjects.length = 0;
+			global.level = this.id;
+			const map = maps[global.level];
+			generateMap(map);
+		}
+
+	}
+
+	draw() {
+		if (this.unlock) {
+			if (selected === this.id) setColor(255, 255, 255, 1);
+			else setColor(255, 255, 255, 0.5);
+		} else {
+			if (selected === this.id) setColor(100, 100, 100, 1);
+			else setColor(100, 100, 100, 0.5);
+		}
+		rectangle("fill", this.x, this.y, 32, 32);
+		setColor(0, 0, 0, 1);
+		rectangle("stroke", this.x, this.y, 32, 32);
+	}
+
+}
+
+//
+function levelSelect() {
+
+	gameObjects.length = 0;
+	gameObjects.push(objLevelSelect);
+
+	// Generate a background
+	for (let x = 0; x < 20; x++)
+	for (let y = 0; y < 12; y++) {
+		const alt = (x + y) % 2;
+		gameObjects.push(new GameObject(grass[alt], x * 16, y * 16));
+	}
+
+	// Generate a background
+	for (let n = 0, y = 0; y < 2; y++)
+	for (let x = 0; x < 5; x++, n++) {
+		gameObjects.push(new LevelBox(48 + x * 48, 64 + y * 48, n));
+	}
+
+}
+
 //
 const objMenu = new GameObject(sprTitle, 0, 0, 100);
 gameObjects.push(objMenu);
@@ -831,8 +945,7 @@ gameObjects.push(objMenu);
 objMenu.update = function() {
 	if (keyboard.pressed("Space")) {
 		gameObjects.length = 0;
-		const map = maps[global.level];
-		generateMap(map);
+		levelSelect();
 	}
 };
 
@@ -868,7 +981,7 @@ app.setMode({
 
 document.addEventListener("keydown", function(e) {
     if (!audio.isPlaying(sndMusic1)) {
-		//game.audio.loop(sndMusic1);
+		audio.loop(sndMusic1);
 		audio.loop(sndAmbienceCars);
 	}
 });

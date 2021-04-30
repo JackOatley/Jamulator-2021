@@ -5,6 +5,7 @@ import { playerPerson } from "./playerPerson.js";
 import { maps, mapGet } from "./maps.js";
 import { global, gameObjects } from "./globals.js";
 import { CarSpawner } from "./car.js";
+import { Prompt } from "./prompt.js";
 import {
 	tiles, grass, grassEdge, road, roadDash,
 	tree, treeShadow, rock,
@@ -38,10 +39,7 @@ export function generateMap(map) {
 			game.audio.play(sndDogBark);
 			game.audio.play(sndCompleteLevel);
 			gameObjects.splice(gameObjects.indexOf(finish), 1);
-			gameObjects.length = 0;
-			global.level += 1;
-			if (global.level >= maps.length) global.level = 0;
-			generateMap(maps[global.level]);
+			new Prompt();
 		}
 	}
 

@@ -13,7 +13,6 @@ import {
 
 //
 const objMenu = new GameObject(sprTitle, 0, 0, 100);
-gameObjects.push(objMenu);
 
 objMenu.update = function() {
 	if (game.keyboard.pressed("Space")) {
@@ -42,5 +41,7 @@ export function startMenu() {
 		const alt = (x + y) % 2;
 		gameObjects.push(new GameObject(grass[alt], x * 16, y * 16));
 	}
+
+	gameObjects.push(objMenu);
 
 }

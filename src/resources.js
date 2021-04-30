@@ -1,7 +1,7 @@
 import { graphics, audio } from "./engine/engine.js";
 
 // Sound assets.
-export const sndMusic1 = audio.newSound("audio/music1.wav");
+export const sndMusic1 = audio.newSound("audio/Jamulator_m_01_v01.ogg");
 export const sndAmbienceCars = audio.newSound("audio/sfx_ambience_cars_ogg.oga");
 export const sndPlayerWalkGrass = [
 	audio.newSound("audio/sfx_footstep_grass_1.wav", 2),
