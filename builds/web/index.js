@@ -85,13 +85,9 @@ function newSound(src, n=1) {
 	instances[0].src = src;
 
 	// Create multiple instances so we can play the same sound multiple times.
-	for (; n > 1; n--) {
-		instances.push(instances[0].cloneNode());
-	}
+	for (; n > 1; n--) instances.push(instances[0].cloneNode());
 
-	return {
-		instances: instances
-	};
+	return { instances: instances };
 
 }
 
@@ -115,17 +111,18 @@ function loop(sound) {
 }
 
 //
-function isPlaying(sound) {
-	return !sound.instances[0].paused;
+function stop(sound) {
+	if (Array.isArray(sound)) return sound.forEach(s => stop(s));
+	for (let n = 0; n < sound.instances.length; n++) {
+		sound.instances[n].pause();
+		sound.instances[n].currentTime = 0;
+	}
 }
 
 //
-var audio = {
-	newSound: newSound,
-	play: play,
-	loop: loop,
-	isPlaying: isPlaying
-};
+function isPlaying(sound) {
+	return !sound.instances[0].paused;
+}
 
 /*
 The grahics module deals with what and how things are drawn to the canvas.
@@ -409,34 +406,37 @@ const global = {
 };
 
 // Sound assets.
-const sndMusic1 = audio.newSound("audio/Jamulator_m_01_v01.ogg");
-const sndAmbienceCars = audio.newSound("audio/sfx_ambience_cars_ogg.oga");
+const sndMusic1 = newSound("audio/Jamulator_m_01_v01.ogg");
+const sndMusic2 = newSound("audio/Jamulator_m_02.ogg");
+const sndAmbienceCars = newSound("audio/sfx_ambience_cars_ogg.oga");
 const sndPlayerWalkGrass = [
-	audio.newSound("audio/sfx_footstep_grass_1.wav", 2),
-	audio.newSound("audio/sfx_footstep_grass_2.wav", 2),
-	audio.newSound("audio/sfx_footstep_grass_3.wav", 2)];
+	newSound("audio/sfx_footstep_grass_1.wav", 2),
+	newSound("audio/sfx_footstep_grass_2.wav", 2),
+	newSound("audio/sfx_footstep_grass_3.wav", 2)];
 const sndPlayerWalkAlsphalt = [
-	audio.newSound("audio/sfx_footstep_alsphalt_1.wav", 2),
-	audio.newSound("audio/sfx_footstep_alsphalt_2.wav", 2),
-	audio.newSound("audio/sfx_footstep_alsphalt_3.wav", 2)];
-audio.newSound("audio/sfx_dog_being_petted.wav");
+	newSound("audio/sfx_footstep_alsphalt_1.wav", 2),
+	newSound("audio/sfx_footstep_alsphalt_2.wav", 2),
+	newSound("audio/sfx_footstep_alsphalt_3.wav", 2)];
+const sndDogPetted = [
+	newSound("audio/sfx_dog_petting_1.wav"),
+	newSound("audio/sfx_dog_petting_2.wav")];
 const sndDogBark = [
-	audio.newSound("audio/sfx_dog_bark_1.wav", 2),
-	audio.newSound("audio/sfx_dog_bark_2.wav", 2),
-	audio.newSound("audio/sfx_dog_bark_3.wav", 2)];
+	newSound("audio/sfx_dog_bark_1.wav", 2),
+	newSound("audio/sfx_dog_bark_2.wav", 2),
+	newSound("audio/sfx_dog_bark_3.wav", 2)];
 const sndDogWhimpering = [
-	audio.newSound("audio/sfx_dog_whimpering_1.wav", 2),
-	audio.newSound("audio/sfx_dog_whimpering_2.wav", 2),
-	audio.newSound("audio/sfx_dog_whimpering_3.wav", 2)];
-const sndObjectiveGet = audio.newSound("audio/sfx_dog_eating.wav");
-const sndCompleteLevel = audio.newSound("audio/completeLevel.wav");
+	newSound("audio/sfx_dog_whimpering_1.wav", 2),
+	newSound("audio/sfx_dog_whimpering_2.wav", 2),
+	newSound("audio/sfx_dog_whimpering_3.wav", 2)];
+const sndObjectiveGet = newSound("audio/sfx_dog_eating.wav");
+const sndCompleteLevel = newSound("audio/completeLevel.wav");
 const sndUIWoosh = [
-	audio.newSound("audio/sfx_UI_woosh_1.wav", 10),
-	audio.newSound("audio/sfx_UI_woosh_2.wav", 10)];
+	newSound("audio/sfx_UI_woosh_1.wav", 10),
+	newSound("audio/sfx_UI_woosh_2.wav", 10)];
 const sndUIClick = [
-	audio.newSound("audio/sfx_UI_click_1.wav", 2),
-	audio.newSound("audio/sfx_UI_click_2.wav", 2),
-	audio.newSound("audio/sfx_UI_click_3.wav", 2)];
+	newSound("audio/sfx_UI_click_1.wav", 2),
+	newSound("audio/sfx_UI_click_2.wav", 2),
+	newSound("audio/sfx_UI_click_3.wav", 2)];
 
 // Art assets.
 const tiles = newImage("art/tiles.png");
@@ -450,6 +450,7 @@ const grass = [
 const grassEdge = [
 	newSubImage(tiles, 32, 0, 16, 16),
 	newSubImage(tiles, 80, 0, 16, 16)];
+const pavement = newSubImage(tiles, 64, 16, 16, 16);
 const road = newSubImage(tiles, 0, 16, 16, 16);
 const roadDash = newSubImage(tiles, 16, 16, 16, 16, 8, 0);
 const rock = [
@@ -468,6 +469,8 @@ const car = [
 	newSubImage(tiles, 64, 72, 32, 16, 0, 4),
 	newSubImage(tiles, 96, 72, 32, 16, 0, 4)];
 const carShadow = newSubImage(tiles, 0, 88, 32, 16, 0, 4);
+const pedestrian = [
+	newSubImage(tiles, 32, 88, 16, 24, 8, 12)];
 
 const bone = newSubImage(tiles, 112, 0, 16, 16);
 const flag = newSubImage(tiles, 112, 16, 16, 16);
@@ -504,6 +507,8 @@ playerPerson.update = function() {
 	this.x += Math.sign(this.moveToX - this.x);
 	this.y += Math.sign(this.moveToY - this.y);
 
+	this.depth = 20 + this.y / 16 / 1e3;
+
 };
 
 //
@@ -523,6 +528,41 @@ const F = -1004;	// Finish (once you get objective)
 const maps = [
 
 	{
+		name: "The Park",
+		desc: "",
+		data: [
+			[T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T],
+			[T,T,T,T,0,0,0,0,T,T,0,0,0,T,T,T,T,T,T,T],
+			[T,T,0,0,0,0,0,0,T,0,0,0,0,0,0,0,0,T,T,T],
+			[T,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,T],
+			[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,T],
+			[0,0,F,0,P,0,0,0,0,0,0,0,0,0,0,0,0,0,0,T],
+			[0,0,0,0,D,0,0,0,0,0,0,0,0,0,0,0,X,0,T,T],
+			[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,T,T],
+			[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,T],
+			[T,0,0,0,0,0,0,0,0,0,T,0,0,0,0,0,0,T,T,T],
+			[T,T,0,0,0,0,0,0,T,0,0,0,0,0,T,T,0,T,T,T],
+			[T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T]
+		]
+	}, {
+		name: "Footpath",
+		desc: "",
+		data: [
+			[0,0,0,0,0,0,0,T,0,0,T,0,0,0,0,0,0,0,0,0],
+			[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+			[0,0,0,0,0,0,0,0,T,0,0,0,0,0,0,0,0,0,0,0],
+			[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,X,0,0,0],
+			[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,T],
+			[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+			[2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2],
+			[0,0,T,0,0,T,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+			[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+			[0,0,0,F,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+			[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,T],
+			[T,0,0,0,0,0,P,D,0,0,0,0,0,0,0,0,0,0,0,0],
+			[T,T,0,0,0,0,0,0,0,0,0,0,0,T,0,0,0,0,0,0]
+		]
+	}, {
 		name: "Single Lane",
 		desc: "",
 		data: [
@@ -541,44 +581,135 @@ const maps = [
 			[T,T,0,0,0,0,0,0,0,0,0,0,0,T,0,0,0,0,0,0]
 		]
 	}, {
-		name: "Test Level",
-		desc: "Cross the roads, don't get petted, don't let hooman down!",
+		name: "Double Lane",
+		desc: "",
 		data: [
+			[0,0,0,0,0,0,0,T,0,0,T,0,0,0,0,0,0,0,0,0],
 			[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-			[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,X,0,0,0],
+			[0,0,0,0,0,0,0,0,T,0,0,0,0,0,0,0,0,0,0,0],
+			[0,0,0,0,0,0,0,0,0,0,0,X,0,0,0,0,0,0,0,0],
+			[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,T],
+			[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+			[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+			[T,T,T,T,T,T,0,0,T,T,T,T,T,0,0,0,T,T,T,T],
+			[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
 			[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-			[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-			[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-			[0,0,0,0,0,0,0,0,T,T,0,0,0,0,0,0,0,0,0,0],
-			[0,0,0,0,T,T,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-			[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-			[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-			[0,0,0,0,T,0,T,0,T,0,T,0,T,0,T,0,0,0,0,0],
-			[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-			[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-			[0,0,T,0,0,T,0,0,0,P,D,0,0,0,0,0,0,0,0,0],
-			[0,0,0,F,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-			[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+			[0,0,0,0,0,0,F,0,0,0,0,0,0,0,0,0,0,0,0,T],
+			[T,0,0,0,0,0,P,D,0,0,0,0,0,0,0,0,0,0,0,0],
+			[T,T,0,0,0,0,0,0,0,0,0,0,0,T,0,0,0,0,0,0]
 		]
 	}, {
-		name: "Test Level 2",
-		desc: "Blah-de-blah!",
+		name: "Country Lane",
+		desc: "",
 		data: [
+			[0,0,0,0,0,0,0,T,0,0,T,0,0,0,0,0,0,0,0,0],
 			[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-			[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,X,0,0,0],
+			[0,0,0,0,0,0,0,0,T,0,0,0,0,X,0,0,0,0,0,0],
+			[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+			[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+			[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+			[2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2],
+			[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+			[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+			[0,0,0,0,0,0,F,0,0,0,0,0,0,0,0,0,0,0,0,T],
+			[T,0,0,0,0,0,P,D,0,0,0,0,0,0,0,0,0,0,0,0],
+			[T,T,0,0,0,0,0,0,0,0,0,0,0,T,0,0,0,0,0,0]
+		]
+	}, {
+		name: "Highstreet",
+		desc: "",
+		data: [
+			[0,0,0,0,0,0,0,T,0,0,T,0,0,0,0,0,0,0,0,0],
+			[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+			[0,0,0,0,0,0,0,0,T,0,0,0,0,X,0,0,0,0,0,0],
+			[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+			[2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2],
+			[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+			[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+			[2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2],
+			[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+			[0,0,0,0,0,0,F,0,0,0,0,0,0,0,0,0,0,0,0,T],
+			[T,0,0,0,0,0,P,D,0,0,0,0,0,0,0,0,0,0,0,0],
+			[T,T,0,0,0,0,0,0,0,0,0,0,0,T,0,0,0,0,0,0]
+		]
+	}, {
+		name: "Motorway",
+		desc: "",
+		data: [
+			[0,0,0,0,0,0,0,T,0,0,T,0,0,0,0,0,0,0,0,0],
+			[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+			[0,0,0,0,0,0,0,0,T,0,0,0,0,X,0,0,0,0,0,0],
+			[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+			[2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2],
+			[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+			[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+			[T,0,T,0,0,T,0,0,0,T,T,0,0,0,T,0,0,T,0,T],
+			[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+			[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+			[2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2],
+			[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+			[0,0,0,0,0,0,F,0,0,0,0,0,0,0,0,0,0,0,0,T],
+			[T,0,0,0,0,0,P,D,0,0,0,0,0,0,0,0,0,0,0,0],
+			[T,T,0,0,0,0,0,0,0,0,0,0,0,T,0,0,0,0,0,0]
+		]
+	}, {
+		name: "Pedestrian Zone",
+		desc: "",
+		data: [
+			[0,0,0,0,0,0,0,T,0,0,T,0,0,0,0,0,0,0,0,0],
+			[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+			[0,0,0,0,0,0,0,0,T,0,0,0,0,X,0,0,0,0,0,0],
+			[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+			[2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2],
+			[2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2],
+			[T,0,T,T,T,0,0,0,0,0,0,0,0,0,T,0,0,0,T,T],
+			[2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2],
+			[2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2],
+			[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+			[0,0,0,0,0,0,F,0,0,0,0,0,0,0,0,0,0,0,0,T],
+			[T,0,0,0,0,0,P,D,0,0,0,0,0,0,0,0,0,0,0,0],
+			[T,T,0,0,0,0,0,0,0,0,0,0,0,T,0,0,0,0,0,0]
+		]
+	}, {
+		name: "Highway To Heaven",
+		desc: "",
+		data: [
+			[0,0,0,0,0,0,0,T,0,0,T,0,0,0,0,0,0,0,0,0],
+			[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+			[0,0,0,0,0,0,0,0,T,0,0,0,0,X,0,0,0,0,0,0],
 			[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
 			[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
 			[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-			[0,0,0,0,0,0,0,0,T,T,0,0,0,0,0,0,0,0,0,0],
-			[0,0,0,0,T,T,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-			[0,0,0,0,T,0,T,0,T,0,T,0,T,0,T,0,0,0,0,0],
 			[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
 			[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
 			[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
 			[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-			[0,0,T,0,0,T,0,0,0,P,D,0,0,0,0,0,0,0,0,0],
-			[0,0,0,F,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-			[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+			[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+			[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+			[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+			[0,0,0,0,0,0,F,0,0,0,0,0,0,0,0,0,0,0,0,T],
+			[T,0,0,0,0,0,P,D,0,0,0,0,0,0,0,0,0,0,0,0],
+			[T,T,0,0,0,0,0,0,0,0,0,0,0,T,0,0,0,0,0,0]
+		]
+	}, {
+		name: "Amazing",
+		desc: "",
+		data: [
+			[0,0,0,0,0,0,0,T,0,0,T,0,0,0,0,0,0,0,0,0],
+			[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+			[0,0,0,0,0,0,0,0,T,0,0,0,0,0,0,0,0,0,0,0],
+			[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,F,0,0,0],
+			[T,T,T,T,T,T,T,T,0,0,0,0,0,0,0,0,0,0,0,0],
+			[T,T,0,0,0,0,0,T,T,T,0,T,T,0,0,0,0,0,0,0],
+			[T,0,0,T,T,T,0,0,0,0,0,0,T,0,0,0,0,0,0,0],
+			[T,T,0,0,0,T,T,T,T,T,T,0,T,0,T,T,T,0,0,0],
+			[T,0,0,T,0,0,0,T,T,T,0,0,T,0,0,0,T,0,0,0],
+			[T,T,T,T,T,0,T,T,T,T,T,0,T,T,0,T,T,T,T,T],
+			[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+			[T,T,T,0,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T],
+			[T,0,0,0,0,0,0,0,0,0,0,0,0,0,T,0,0,X,0,T],
+			[T,T,0,0,0,0,P,D,0,0,0,0,T,0,0,0,0,0,0,T],
+			[T,T,0,0,0,0,0,0,0,0,0,0,T,T,T,T,T,T,T,T]
 		]
 	}
 
@@ -610,7 +741,8 @@ playerDog.hit = function() {
 		playerDog.moveToY = playerDog.startY;
 		playerPerson.moveToX = playerPerson.startX;
 		playerPerson.moveToY = playerPerson.startY;
-		audio.play(sndDogWhimpering);
+		playerDog.nextMove = {};
+		play(sndDogWhimpering);
 	}
 };
 
@@ -639,9 +771,9 @@ playerDog.update = function() {
 			if (xdiff !== 0) playerDog.scaleX = xdiff;
 			this.moving = true;
 			if (mapGet(global.level, this.x / 16, this.y / 16) === 1)
-				audio.play(sndPlayerWalkAlsphalt);
+				play(sndPlayerWalkAlsphalt);
 			else
-				audio.play(sndPlayerWalkGrass);
+				play(sndPlayerWalkGrass);
 			playerPerson.moveToX = this.x;
 			playerPerson.moveToY = this.y;
 		}
@@ -659,6 +791,9 @@ playerDog.update = function() {
 			this.nextMove = {};
 		}
 	}
+
+	//
+	this.depth = 20 + this.y / 16 / 1e3;
 
 	//
 	let dx = -keyboard.pressed("ArrowLeft") + keyboard.pressed("ArrowRight");
@@ -731,6 +866,7 @@ class Car extends GameObject {
 	//
 	update(dt) {
 		super.update(dt);
+		if (this.x < -100 || this.x > 420) this.destroy();
 		if (this.collides(playerDog) || this.collides(playerPerson)) {
 			playerDog.hit();
 		}
@@ -740,6 +876,100 @@ class Car extends GameObject {
 	draw() {
 		draw$1(carShadow, this.x + 2, this.y, 0, this.scaleX, 1);
 		super.draw();
+	}
+
+	//
+	destroy() {
+		const i = gameObjects.indexOf(this);
+		if (i >= 0) gameObjects.splice(i, 1);
+	}
+
+}
+
+//
+class PedestrianSpawner extends GameObject {
+
+	//
+	constructor(x, y, d) {
+		super(null, x, y);
+		this.d = d;
+		this.timer = 140 + 60 * ~~math.random(5);
+		gameObjects.push(this);
+	}
+
+	//
+	update(dt) {
+		if (this.timer-- <= 0) {
+			this.timer = 140 + 80 * ~~math.random(20);
+			new Pedestrian(this.x, this.y, this.d);
+		}
+	}
+
+}
+
+//
+class Pedestrian extends GameObject {
+
+	//
+	constructor(x, y, d) {
+		super(pedestrian[~~math.random(pedestrian.length)], x, y, 1);
+		this.scaleX = d;
+		this.w = 12;
+		this.h = 12;
+		this.vx = d / 2;
+		this.offset = Math.random() * 8;
+		gameObjects.push(this);
+	}
+
+	//
+	collides(obj) {
+		const x1 = Math.min(this.x - 4, this.x + 4 * this.scaleX);
+		const x2 = Math.max(this.x - 4, this.x + 4 * this.scaleX);
+		const y1 = Math.min(this.y, this.y + this.h * this.scaleY);
+		const y2 = Math.max(this.y, this.y + this.h * this.scaleY);
+		if ((x1 > obj.x + obj.w)
+		||  (y1 > obj.y + obj.h)
+		||  (x2 < obj.x)
+		||  (y2 < obj.y))
+			return false;
+		return true;
+	}
+
+	//
+	update(dt) {
+		super.update(dt);
+		this.depth = 20 + (this.y - this.offset) / 16 / 1e3;
+		if (this.x < -100 || this.x > 420) this.destroy();
+		if (this.collides(playerDog)) {
+			play(sndDogPetted);
+			playerDog.hit();
+		}
+
+		// Sees doggy!
+		if (Math.abs(playerDog.y - this.y) < 8) {
+			if (playerDog.x < this.x && this.vx < 0) {
+				this.vx = Math.sign(this.vx) * 2;
+			}
+			if (playerDog.x > this.x && this.vx > 0) {
+				this.vx = Math.sign(this.vx) * 2;
+			}
+		}
+
+	}
+
+	//
+	draw() {
+		//game.graphics.draw(carShadow, this.x + 2, this.y, 0, this.scaleX, 1);
+		//super.draw();
+		draw$1(sprUnitShadow, this.x - 8, this.y - this.offset + 2);
+		const y = this.y - this.offset + Math.abs(Math.sin(this.offset + performance.now() / 75) * 2);
+		draw$1(this.img, this.x, y, 0, this.scaleX, 1);
+	}
+
+	//
+	destroy() {
+		const i = gameObjects.indexOf(this);
+		if (i >= 0) gameObjects.splice(i, 1);
 	}
 
 }
@@ -761,7 +991,7 @@ objLevelSelect.update = function() {
 	if (keyboard.pressed("ArrowLeft")) selected = (selected + 9) % 10;
 	if (keyboard.pressed("ArrowUp")) selected = (selected + 15) % 10;
 	if (keyboard.pressed("ArrowDown")) selected = (selected + 5) % 10;
-	if (old !== selected) audio.play(sndUIWoosh);
+	if (old !== selected) play(sndUIWoosh);
 
 };
 
@@ -784,7 +1014,7 @@ class LevelBox extends GameObject {
 
 	update() {
 		if (this.unlock && this.id === selected && keyboard.pressed("Space")) {
-			audio.play(sndUIClick);
+			play(sndUIClick);
 			gameObjects.length = 0;
 			global.level = this.id;
 			const map = maps[global.level];
@@ -855,6 +1085,11 @@ objMenu.draw = function() {
 //
 function startMenu() {
 
+	//
+	stop(sndAmbienceCars);
+	if (isPlaying(sndMusic1)) stop(sndMusic1);
+	if (!isPlaying(sndMusic2)) loop(sndMusic2);
+
 	// Generate a background
 	for (let x = 0; x < 20; x++)
 	for (let y = 0; y < 12; y++) {
@@ -880,7 +1115,7 @@ class Prompt extends GameObject {
 	update() {
 
 		if (keyboard.pressed("Space")) {
-			audio.play(sndUIWoosh);
+			play(sndUIWoosh);
 			gameObjects.length = 0;
 			global.level += 1;
 			if (global.level >= maps.length) global.level = 0;
@@ -888,7 +1123,7 @@ class Prompt extends GameObject {
 		}
 
 		if (keyboard.pressed("Escape")) {
-			audio.play(sndUIWoosh);
+			play(sndUIWoosh);
 			gameObjects.length = 0;
 			global.level = 0;
 			return startMenu();
@@ -925,13 +1160,13 @@ function generateMap(map) {
 	localStorage.setItem(`gds_level_${global.level}_unlock`, true);
 
 	let hasObjective = false;
+	let hasRoads = false;
 
 	let objective = new GameObject(bone, 0, 0, 1);
 	objective.update = function() {
 		if (this.x === playerDog.x
 		&&  this.y === playerDog.y) {
-			//console.log("collected objective");
-			audio.play(sndObjectiveGet);
+			play(sndObjectiveGet);
 			hasObjective = true;
 			gameObjects.splice(gameObjects.indexOf(objective), 1);
 		}
@@ -942,9 +1177,8 @@ function generateMap(map) {
 		if (this.x === playerDog.x
 		&&  this.y === playerDog.y
 		&&  hasObjective) {
-			//console.log("level complete");
-			audio.play(sndDogBark);
-			audio.play(sndCompleteLevel);
+			play(sndDogBark);
+			play(sndCompleteLevel);
 			gameObjects.splice(gameObjects.indexOf(finish), 1);
 			new Prompt();
 		}
@@ -961,7 +1195,8 @@ function generateMap(map) {
 
 		let frill = true;
 
-		if (mapGet(level, x, y) <= 0 && mapGet(level, x, y+1) === 1)
+		if (mapGet(level, x, y) <= 0 && mapGet(level, x, y+1) === 1
+		||  mapGet(level, x, y) <= 0 && mapGet(level, x, y+1) === 2)
 			gameObjects.push(new GameObject(grassEdge[alt], x*16, y*16));
 
 		else if (mapGet(level, x, y) <= 0)
@@ -975,8 +1210,21 @@ function generateMap(map) {
 			frill = false;
 		}
 
+		// Pavement.
+		if (mapGet(level, x, y) === 2) {
+			gameObjects.push(new GameObject(pavement, x*16, y*16));
+			frill = false;
+
+			// Pedestrian spawners.
+			if (x-1 < 0)
+				gameObjects.push(new PedestrianSpawner(x*16-32, y*16, 1));
+			if (x+1 >= 20)
+				gameObjects.push(new PedestrianSpawner(x*16+48, y*16, -1));
+		}
+
 		// Road.
 		if (mapGet(level, x, y) === 1) {
+			hasRoads = true;
 			gameObjects.push(new GameObject(road, x*16, y*16));
 			frill = false;
 			// Road dashes.
@@ -1021,6 +1269,14 @@ function generateMap(map) {
 			gameObjects.push(new GameObject(rock[0], x*16, y*16));
 		}
 
+		// Swap music if needed.
+		if (isPlaying(sndMusic2)) stop(sndMusic2);
+		if (!isPlaying(sndMusic1)) loop(sndMusic1);
+
+		// Play ambience if needed.
+		if (hasRoads) loop(sndAmbienceCars);
+		else stop(sndAmbienceCars);
+
 	}
 
 	gameObjects.push(playerDog, playerPerson);
@@ -1034,11 +1290,11 @@ app.setMode({
 	resHeight: 180 * 4
 });
 
-document.addEventListener("keydown", function(e) {
-    if (!audio.isPlaying(sndMusic1)) {
-		audio.loop(sndMusic1);
-		audio.loop(sndAmbienceCars);
-	}
+loop(sndMusic2);
+document.addEventListener("keydown", (e) => {
+    if (!isPlaying(sndMusic1)
+	&& !isPlaying(sndMusic2))
+		loop(sndMusic2);
 });
 
 startMenu();

@@ -20,7 +20,7 @@ export class PedestrianSpawner extends GameObject {
 	//
 	update(dt) {
 		if (this.timer-- <= 0) {
-			this.timer = 140 + 80 * ~~game.math.random(10);
+			this.timer = 140 + 80 * ~~game.math.random(20);
 			new Pedestrian(this.x, this.y, this.d);
 		}
 	}
