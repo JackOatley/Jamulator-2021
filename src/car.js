@@ -20,7 +20,7 @@ export class CarSpawner extends GameObject {
 	update(dt) {
 		if (this.timer-- <= 0) {
 			this.timer = 140 + 80 * ~~game.math.random(6);
-			const car = new Car(this.x, this.y, this.d);
+			new Car(this.x, this.y, this.d);
 		}
 	}
 
@@ -56,6 +56,7 @@ export class Car extends GameObject {
 	//
 	update(dt) {
 		super.update(dt);
+		if (this.x < -100 || this.x > 420) this.destroy();
 		if (this.collides(playerDog) || this.collides(playerPerson)) {
 			playerDog.hit();
 		}
@@ -65,6 +66,12 @@ export class Car extends GameObject {
 	draw() {
 		game.graphics.draw(carShadow, this.x + 2, this.y, 0, this.scaleX, 1);
 		super.draw();
+	}
+
+	//
+	destroy() {
+		const i = gameObjects.indexOf(this);
+		if (i >= 0) gameObjects.splice(i, 1);
 	}
 
 }

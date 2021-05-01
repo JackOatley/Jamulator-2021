@@ -6,7 +6,7 @@ import { playerPerson } from "./playerPerson.js";
 import { maps } from "./maps.js";
 import { generateMap } from "./generateMap.js";
 import { global, gameObjects } from "./globals.js";
-import { sndMusic1, sndAmbienceCars } from "./resources.js";
+import { sndMusic1, sndMusic2, sndAmbienceCars } from "./resources.js";
 import { startMenu } from "./menu.js";
 
 game.app.setMode({
@@ -16,11 +16,11 @@ game.app.setMode({
 	resHeight: 180 * 4
 });
 
-document.addEventListener("keydown", function(e) {
-    if (!audio.isPlaying(sndMusic1)) {
-		game.audio.loop(sndMusic1);
-		game.audio.loop(sndAmbienceCars);
-	}
+game.audio.loop(sndMusic2);
+document.addEventListener("keydown", (e) => {
+    if (!audio.isPlaying(sndMusic1)
+	&& !audio.isPlaying(sndMusic2))
+		game.audio.loop(sndMusic2);
 });
 
 startMenu();

@@ -1,21 +1,18 @@
-import * as game from "./engine/engine.js";
-import { graphics } from "./engine/engine.js";
+import { audio, graphics, keyboard } from "./engine/engine.js";
 import { GameObject } from "./GameObject.js";
 import { global, gameObjects } from "./globals.js";
 import { maps } from "./maps.js";
 //import { generateMap } from "./generateMap.js";
 import { levelSelect } from "./levelSelect.js";
 import {
-	sprTitle,
-	tiles, grass, grassEdge, road, roadDash,
-	tree, treeShadow, rock,
+	sprTitle, grass, sndAmbienceCars, sndMusic1, sndMusic2
 } from "./resources.js";
 
 //
 const objMenu = new GameObject(sprTitle, 0, 0, 100);
 
 objMenu.update = function() {
-	if (game.keyboard.pressed("Space")) {
+	if (keyboard.pressed("Space")) {
 		gameObjects.length = 0;
 		levelSelect();
 	}
@@ -34,6 +31,11 @@ objMenu.draw = function() {
 
 //
 export function startMenu() {
+
+	//
+	audio.stop(sndAmbienceCars);
+	if (audio.isPlaying(sndMusic1)) audio.stop(sndMusic1);
+	if (!audio.isPlaying(sndMusic2)) audio.loop(sndMusic2);
 
 	// Generate a background
 	for (let x = 0; x < 20; x++)

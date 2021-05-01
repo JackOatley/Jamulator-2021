@@ -7,13 +7,9 @@ export function newSound(src, n=1) {
 	instances[0].src = src;
 
 	// Create multiple instances so we can play the same sound multiple times.
-	for (; n > 1; n--) {
-		instances.push(instances[0].cloneNode());
-	}
+	for (; n > 1; n--) instances.push(instances[0].cloneNode());
 
-	return {
-		instances: instances
-	};
+	return { instances: instances };
 
 }
 
@@ -37,14 +33,15 @@ export function loop(sound) {
 }
 
 //
-export function isPlaying(sound) {
-	return !sound.instances[0].paused;
+export function stop(sound) {
+	if (Array.isArray(sound)) return sound.forEach(s => stop(s));
+	for (let n = 0; n < sound.instances.length; n++) {
+		sound.instances[n].pause();
+		sound.instances[n].currentTime = 0;
+	}
 }
 
 //
-export default {
-	newSound: newSound,
-	play: play,
-	loop: loop,
-	isPlaying: isPlaying
+export function isPlaying(sound) {
+	return !sound.instances[0].paused;
 }

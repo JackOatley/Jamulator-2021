@@ -1,15 +1,17 @@
-import * as game from "./engine/engine.js";
+import { audio, math } from "./engine/engine.js";
 import { GameObject } from "./GameObject.js";
 import { playerDog } from "./playerDog.js";
 import { playerPerson } from "./playerPerson.js";
 import { maps, mapGet } from "./maps.js";
 import { global, gameObjects } from "./globals.js";
 import { CarSpawner } from "./car.js";
+import { PedestrianSpawner } from "./pedestrian.js";
 import { Prompt } from "./prompt.js";
 import {
-	tiles, grass, grassEdge, road, roadDash,
+	tiles, grass, pavement, grassEdge, road, roadDash,
 	tree, treeShadow, rock,
-	bone, flag, sndCompleteLevel, sndObjectiveGet, sndDogBark
+	bone, flag, sndCompleteLevel, sndObjectiveGet, sndDogBark,
+	sndAmbienceCars, sndMusic1, sndMusic2
 } from "./resources.js";
 
 //
@@ -18,13 +20,13 @@ export function generateMap(map) {
 	localStorage.setItem(`gds_level_${global.level}_unlock`, true);
 
 	let hasObjective = false;
+	let hasRoads = false;
 
 	let objective = new GameObject(bone, 0, 0, 1);
 	objective.update = function() {
 		if (this.x === playerDog.x
 		&&  this.y === playerDog.y) {
-			//console.log("collected objective");
-			game.audio.play(sndObjectiveGet);
+			audio.play(sndObjectiveGet);
 			hasObjective = true;
 			gameObjects.splice(gameObjects.indexOf(objective), 1);
 		}
@@ -35,9 +37,8 @@ export function generateMap(map) {
 		if (this.x === playerDog.x
 		&&  this.y === playerDog.y
 		&&  hasObjective) {
-			//console.log("level complete");
-			game.audio.play(sndDogBark);
-			game.audio.play(sndCompleteLevel);
+			audio.play(sndDogBark);
+			audio.play(sndCompleteLevel);
 			gameObjects.splice(gameObjects.indexOf(finish), 1);
 			new Prompt();
 		}
@@ -54,7 +55,8 @@ export function generateMap(map) {
 
 		let frill = true;
 
-		if (mapGet(level, x, y) <= 0 && mapGet(level, x, y+1) === 1)
+		if (mapGet(level, x, y) <= 0 && mapGet(level, x, y+1) === 1
+		||  mapGet(level, x, y) <= 0 && mapGet(level, x, y+1) === 2)
 			gameObjects.push(new GameObject(grassEdge[alt], x*16, y*16));
 
 		else if (mapGet(level, x, y) <= 0)
@@ -62,14 +64,27 @@ export function generateMap(map) {
 
 		// Trees.
 		if (mapGet(level, x, y) === -1002) {
-			const t = game.math.choose(0, 1, 2);
+			const t = math.choose(0, 1, 2);
 			gameObjects.push(new GameObject(tree[t], x*16, y*16, 20 + y / 1e3));
 			gameObjects.push(new GameObject(treeShadow[t], x*16, y*16, 1));
 			frill = false;
 		}
 
+		// Pavement.
+		if (mapGet(level, x, y) === 2) {
+			gameObjects.push(new GameObject(pavement, x*16, y*16));
+			frill = false;
+
+			// Pedestrian spawners.
+			if (x-1 < 0)
+				gameObjects.push(new PedestrianSpawner(x*16-32, y*16, 1));
+			if (x+1 >= 20)
+				gameObjects.push(new PedestrianSpawner(x*16+48, y*16, -1));
+		}
+
 		// Road.
 		if (mapGet(level, x, y) === 1) {
+			hasRoads = true;
 			gameObjects.push(new GameObject(road, x*16, y*16));
 			frill = false;
 			// Road dashes.
@@ -113,6 +128,14 @@ export function generateMap(map) {
 		if (frill && Math.random() < 0.1) {
 			gameObjects.push(new GameObject(rock[0], x*16, y*16));
 		}
+
+		// Swap music if needed.
+		if (audio.isPlaying(sndMusic2)) audio.stop(sndMusic2);
+		if (!audio.isPlaying(sndMusic1)) audio.loop(sndMusic1);
+
+		// Play ambience if needed.
+		if (hasRoads) audio.loop(sndAmbienceCars);
+		else audio.stop(sndAmbienceCars);
 
 	}
 

@@ -35,6 +35,7 @@ playerDog.hit = function() {
 		playerDog.moveToY = playerDog.startY;
 		playerPerson.moveToX = playerPerson.startX;
 		playerPerson.moveToY = playerPerson.startY;
+		playerDog.nextMove = {};
 		game.audio.play(sndDogWhimpering);
 	}
 }
@@ -84,6 +85,9 @@ playerDog.update = function() {
 			this.nextMove = {};
 		}
 	}
+
+	//
+	this.depth = 20 + this.y / 16 / 1e3;
 
 	//
 	let dx = -keyboard.pressed("ArrowLeft") + keyboard.pressed("ArrowRight");

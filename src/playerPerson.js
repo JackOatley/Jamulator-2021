@@ -35,6 +35,8 @@ playerPerson.update = function() {
 	this.x += Math.sign(this.moveToX - this.x);
 	this.y += Math.sign(this.moveToY - this.y);
 
+	this.depth = 20 + this.y / 16 / 1e3;
+
 }
 
 //

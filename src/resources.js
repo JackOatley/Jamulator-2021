@@ -2,6 +2,7 @@ import { graphics, audio } from "./engine/engine.js";
 
 // Sound assets.
 export const sndMusic1 = audio.newSound("audio/Jamulator_m_01_v01.ogg");
+export const sndMusic2 = audio.newSound("audio/Jamulator_m_02.ogg");
 export const sndAmbienceCars = audio.newSound("audio/sfx_ambience_cars_ogg.oga");
 export const sndPlayerWalkGrass = [
 	audio.newSound("audio/sfx_footstep_grass_1.wav", 2),
@@ -11,7 +12,9 @@ export const sndPlayerWalkAlsphalt = [
 	audio.newSound("audio/sfx_footstep_alsphalt_1.wav", 2),
 	audio.newSound("audio/sfx_footstep_alsphalt_2.wav", 2),
 	audio.newSound("audio/sfx_footstep_alsphalt_3.wav", 2)];
-export const sndDogPetted = audio.newSound("audio/sfx_dog_being_petted.wav");
+export const sndDogPetted = [
+	audio.newSound("audio/sfx_dog_petting_1.wav"),
+	audio.newSound("audio/sfx_dog_petting_2.wav")];
 export const sndDogBark = [
 	audio.newSound("audio/sfx_dog_bark_1.wav", 2),
 	audio.newSound("audio/sfx_dog_bark_2.wav", 2),
@@ -42,6 +45,7 @@ export const grass = [
 export const grassEdge = [
 	graphics.newSubImage(tiles, 32, 0, 16, 16),
 	graphics.newSubImage(tiles, 80, 0, 16, 16)];
+export const pavement = graphics.newSubImage(tiles, 64, 16, 16, 16);
 export const road = graphics.newSubImage(tiles, 0, 16, 16, 16);
 export const roadDash = graphics.newSubImage(tiles, 16, 16, 16, 16, 8, 0);
 export const rock = [
@@ -60,6 +64,8 @@ export const car = [
 	graphics.newSubImage(tiles, 64, 72, 32, 16, 0, 4),
 	graphics.newSubImage(tiles, 96, 72, 32, 16, 0, 4)];
 export const carShadow = graphics.newSubImage(tiles, 0, 88, 32, 16, 0, 4);
+export const pedestrian = [
+	graphics.newSubImage(tiles, 32, 88, 16, 24, 8, 12)];
 
 export const bone = graphics.newSubImage(tiles, 112, 0, 16, 16);
 export const flag = graphics.newSubImage(tiles, 112, 16, 16, 16);
