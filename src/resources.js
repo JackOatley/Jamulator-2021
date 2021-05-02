@@ -65,7 +65,10 @@ export const car = [
 	graphics.newSubImage(tiles, 96, 72, 32, 16, 0, 4)];
 export const carShadow = graphics.newSubImage(tiles, 0, 88, 32, 16, 0, 4);
 export const pedestrian = [
-	graphics.newSubImage(tiles, 32, 88, 16, 24, 8, 12)];
+	graphics.newSubImage(tiles, 32, 88, 16, 24, 8, 12),
+	graphics.newSubImage(tiles, 48, 88, 16, 24, 8, 12),
+	graphics.newSubImage(tiles, 64, 88, 16, 24, 8, 12),
+	graphics.newSubImage(tiles, 80, 88, 16, 24, 8, 12)];
 
 export const bone = graphics.newSubImage(tiles, 112, 0, 16, 16);
 export const flag = graphics.newSubImage(tiles, 112, 16, 16, 16);
