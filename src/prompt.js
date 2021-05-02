@@ -19,7 +19,7 @@ export class Prompt extends GameObject {
 
 	update() {
 
-		if (keyboard.pressed("Space")) {
+		if (global.level < 9 && keyboard.pressed("Space")) {
 			audio.play(sndUIWoosh);
 			gameObjects.length = 0;
 			global.level += 1;
@@ -51,7 +51,8 @@ export class Prompt extends GameObject {
 		graphics.print("Level Completed!", this.x, this.y - 24);
 
 		graphics.setFont("small-caps bold 12px sans-serif");
-		graphics.print("SPACE to continue", this.x, this.y + 8);
+		if (global.level < 9)
+			graphics.print("SPACE to continue", this.x, this.y + 8);
 		graphics.print("ESC to return to menu", this.x, this.y + 24);
 
 		graphics.pop();
