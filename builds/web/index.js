@@ -232,12 +232,14 @@ document.addEventListener("keydown", (e) => {
 	_pressed$1[e.code] = true;
 	_released$1[e.code] = false;
 	_down$1[e.code] = true;
+	e.preventDefault();
 });
 
 document.addEventListener("keyup", (e) => {
 	_pressed$1[e.code] = false;
 	_released$1[e.code] = true;
 	_down$1[e.code] = false;
+	e.preventDefault();
 });
 
 // Returns true if the given key is currently held down.
@@ -470,7 +472,10 @@ const car = [
 	newSubImage(tiles, 96, 72, 32, 16, 0, 4)];
 const carShadow = newSubImage(tiles, 0, 88, 32, 16, 0, 4);
 const pedestrian = [
-	newSubImage(tiles, 32, 88, 16, 24, 8, 12)];
+	newSubImage(tiles, 32, 88, 16, 24, 8, 12),
+	newSubImage(tiles, 48, 88, 16, 24, 8, 12),
+	newSubImage(tiles, 64, 88, 16, 24, 8, 12),
+	newSubImage(tiles, 80, 88, 16, 24, 8, 12)];
 
 const bone = newSubImage(tiles, 112, 0, 16, 16);
 const flag = newSubImage(tiles, 112, 16, 16, 16);
@@ -695,15 +700,15 @@ const maps = [
 		name: "Amazing",
 		desc: "",
 		data: [
-			[0,0,0,0,0,0,0,T,0,0,T,0,0,0,0,0,0,0,0,0],
-			[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-			[0,0,0,0,0,0,0,0,T,0,0,0,0,0,0,0,0,0,0,0],
-			[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,F,0,0,0],
-			[T,T,T,T,T,T,T,T,0,0,0,0,0,0,0,0,0,0,0,0],
-			[T,T,0,0,0,0,0,T,T,T,0,T,T,0,0,0,0,0,0,0],
-			[T,0,0,T,T,T,0,0,0,0,0,0,T,0,0,0,0,0,0,0],
-			[T,T,0,0,0,T,T,T,T,T,T,0,T,0,T,T,T,0,0,0],
-			[T,0,0,T,0,0,0,T,T,T,0,0,T,0,0,0,T,0,0,0],
+			[T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T],
+			[T,0,F,0,0,0,0,0,0,0,T,0,0,T,T,T,0,0,T,T],
+			[T,0,0,0,T,T,T,T,T,0,0,0,0,T,0,0,0,0,0,T],
+			[2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2],
+			[T,T,T,T,T,T,T,T,0,T,T,0,0,0,0,T,0,0,T,T],
+			[T,T,0,0,0,0,0,T,T,T,T,T,T,T,T,T,0,0,T,T],
+			[T,0,0,T,T,T,0,0,0,0,0,0,T,0,0,0,0,0,0,T],
+			[T,T,0,0,0,T,T,T,T,T,T,0,T,0,T,T,T,0,T,T],
+			[T,0,0,T,0,0,0,T,T,T,0,0,T,0,0,0,T,0,0,T],
 			[T,T,T,T,T,0,T,T,T,T,T,0,T,T,0,T,T,T,T,T],
 			[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
 			[T,T,T,0,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T,T],
@@ -1114,7 +1119,7 @@ class Prompt extends GameObject {
 
 	update() {
 
-		if (keyboard.pressed("Space")) {
+		if (global.level < 9 && keyboard.pressed("Space")) {
 			play(sndUIWoosh);
 			gameObjects.length = 0;
 			global.level += 1;
@@ -1146,7 +1151,8 @@ class Prompt extends GameObject {
 		print("Level Completed!", this.x, this.y - 24);
 
 		setFont("small-caps bold 12px sans-serif");
-		print("SPACE to continue", this.x, this.y + 8);
+		if (global.level < 9)
+			print("SPACE to continue", this.x, this.y + 8);
 		print("ESC to return to menu", this.x, this.y + 24);
 
 		pop();
