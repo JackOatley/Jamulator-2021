@@ -8,12 +8,14 @@ document.addEventListener("keydown", (e) => {
 	_pressed[e.code] = true;
 	_released[e.code] = false;
 	_down[e.code] = true;
+	e.preventDefault();
 });
 
 document.addEventListener("keyup", (e) => {
 	_pressed[e.code] = false;
 	_released[e.code] = true;
 	_down[e.code] = false;
+	e.preventDefault();
 });
 
 // Returns true if the given key is currently held down.
